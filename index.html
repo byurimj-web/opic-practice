@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>OPIc Practice</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+:root{
+  /* ─ Light palette (Claude-style warm off-white) ─ */
+  --bg:#f5f4f0;
+  --bg2:#eeede8;
+  --surface:#ffffff;
+  --surface2:#f9f8f5;
+  --border:#dddbd4;
+  --border2:#cac8c0;
+  --accent:#5b5bd6;
+  --accent2:#7c3aed;
+  --accent-bg:rgba(91,91,214,.10);
+  --success:#16a34a;
+  --success-bg:rgba(22,163,74,.10);
+  --warning:#d97706;
+  --danger:#dc2626;
+  --danger-bg:rgba(220,38,38,.10);
+  --text:#1c1917;
+  --text2:#57534e;
+  --text3:#a8a29e;
+  --radius:16px;
+  --radius-sm:10px;
+  --shadow:0 1px 4px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.06);
+  --shadow-sm:0 1px 3px rgba(0,0,0,.07);
+  --font:'Inter','Noto Sans KR',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100dvh;max-width:430px;margin:0 auto;overflow-x:hidden}
+.screen{display:none;min-height:100dvh;flex-direction:column}
+.screen.active{display:flex}
+
+/* ══ TOP BAR ══ */
+.home-topbar{display:flex;justify-content:space-between;align-items:center;padding:52px 20px 0}
+.home-topbar-title{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3)}
+.more-btn{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;transition:background .15s}
+.more-btn:active{background:var(--bg2)}
+.dropdown{position:absolute;top:40px;right:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);min-width:180px;z-index:200;box-shadow:var(--shadow);overflow:hidden;display:none}
+.dropdown.open{display:block}
+.dropdown-item{padding:12px 16px;font-size:14px;font-weight:500;color:var(--text);cursor:pointer;transition:background .1s;display:flex;align-items:center;gap:10px}
+.dropdown-item:active{background:var(--bg2)}
+.dropdown-item.danger{color:var(--danger)}
+.dropdown-divider{height:1px;background:var(--border)}
+
+/* ══ HOME SCROLL ══ */
+#screen-home{background:var(--bg);overflow-y:auto}
+.home-scroll{padding-bottom:40px}
+
+/* ══ ACTION ROW ══ */
+.action-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 18px 0}
+
+/* Start hero */
+.start-hero-btn{width:100%;border:none;border-radius:var(--radius);padding:0;cursor:pointer;position:relative;overflow:hidden;background:transparent;display:block;transition:transform .15s;box-shadow:0 4px 20px rgba(91,91,214,.25)}
+.start-hero-btn:active{transform:scale(.97)}
+.start-hero-bg{width:100%;height:152px;background:linear-gradient(140deg,#2d2f8f 0%,#5b5bd6 45%,#7c3aed 100%);position:relative;overflow:hidden;border-radius:var(--radius)}
+.start-hero-bg::before{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");background-size:200px;opacity:.8}
+.start-hero-bg::after{content:'';position:absolute;top:-20px;right:-20px;width:130px;height:130px;background:radial-gradient(circle,rgba(255,255,255,.18) 0%,transparent 65%)}
+.start-orb2{position:absolute;bottom:-30px;left:-10px;width:110px;height:110px;background:radial-gradient(circle,rgba(255,255,255,.1) 0%,transparent 65%);pointer-events:none}
+.start-hero-inner{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:14px 16px 16px}
+.start-eyebrow{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:3px}
+.start-title{font-size:20px;font-weight:700;color:#fff;line-height:1.2}
+.start-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.25);border-radius:100px;padding:4px 10px;font-size:10px;font-weight:600;color:#fff;margin-top:7px;width:fit-content}
+.cta-dot{width:6px;height:6px;border-radius:50%;background:#4ade80;animation:blink 1.4s ease-in-out infinite;flex-shrink:0}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* Study btn */
+.study-btn{width:100%;border:none;border-radius:var(--radius);padding:0;cursor:pointer;position:relative;overflow:hidden;background:transparent;display:block;transition:transform .15s;box-shadow:0 4px 20px rgba(22,163,74,.18)}
+.study-btn:active{transform:scale(.97)}
+.study-hero-bg{width:100%;height:152px;background:linear-gradient(140deg,#14532d 0%,#16a34a 50%,#059669 100%);position:relative;overflow:hidden;border-radius:var(--radius)}
+.study-hero-bg::after{content:'';position:absolute;top:-20px;right:-20px;width:130px;height:130px;background:radial-gradient(circle,rgba(255,255,255,.18) 0%,transparent 65%)}
+.study-orb2{position:absolute;bottom:-30px;left:-10px;width:110px;height:110px;background:radial-gradient(circle,rgba(255,255,255,.1) 0%,transparent 65%);pointer-events:none}
+.study-inner{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:14px 16px 16px}
+.study-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.25);border-radius:100px;padding:4px 10px;font-size:10px;font-weight:600;color:#fff;margin-top:7px;width:fit-content}
+
+/* Browse btn */
+.browse-btn{margin:10px 18px 0;width:calc(100% - 36px);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-family:var(--font);color:var(--text);transition:background .15s;box-shadow:var(--shadow-sm)}
+.browse-btn:active{background:var(--bg2)}
+.browse-btn-left{display:flex;align-items:center;gap:12px}
+.browse-btn-icon{width:38px;height:38px;border-radius:10px;background:var(--accent-bg);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.browse-btn-title{font-size:14px;font-weight:600;text-align:left}
+.browse-btn-sub{font-size:11px;color:var(--text3);margin-top:1px;text-align:left}
+.browse-btn-arrow{color:var(--text3);font-size:16px}
+
+/* Stats card */
+.home-stats-card{margin:10px 18px 0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;cursor:pointer;transition:background .15s;box-shadow:var(--shadow-sm)}
+.home-stats-card:active{background:var(--bg2)}
+.home-stats-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.home-stats-label{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3)}
+.home-stats-arrow{color:var(--text3);font-size:14px}
+.home-stats-row{display:flex}
+.home-stat-item{flex:1;border-right:1px solid var(--border);padding-right:14px;margin-right:14px}
+.home-stat-item:last-child{border-right:none;padding-right:0;margin-right:0}
+.home-stat-num{font-size:24px;font-weight:700;color:var(--text);line-height:1;font-variant-numeric:tabular-nums}
+.home-stat-unit{font-size:10px;color:var(--text3);margin-top:3px}
+.home-stat-pct{color:var(--accent)}
+.stats-progress-wrap{margin-top:12px}
+.stats-progress-label{display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:5px}
+.stats-bar-bg{height:4px;background:var(--bg2);border-radius:2px;overflow:hidden}
+.stats-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+
+/* Recent history */
+.home-history-card{margin:10px 18px 0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm)}
+.hhc-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 8px}
+.hhc-title{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3)}
+.hhc-more{font-size:12px;color:var(--accent);cursor:pointer;background:none;border:none;font-family:var(--font);padding:0;font-weight:500}
+.hhc-item{display:flex;align-items:center;gap:11px;padding:10px 16px;border-top:1px solid var(--border)}
+.hhc-emoji{font-size:18px}
+.hhc-info{flex:1}
+.hhc-topic{font-size:13px;font-weight:500;color:var(--text)}
+.hhc-meta{font-size:11px;color:var(--text3);margin-top:1px}
+.hhc-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;background:var(--accent-bg);color:var(--accent)}
+.hhc-badge.rp{background:rgba(124,58,237,.1);color:var(--accent2)}
+.hhc-badge.study{background:var(--success-bg);color:var(--success)}
+.hhc-empty{padding:20px 16px;text-align:center;font-size:12px;color:var(--text3)}
+
+/* ══ COMMON HEADER ══ */
+.screen-header{display:flex;align-items:center;padding:50px 18px 12px;gap:10px;position:sticky;top:0;background:var(--bg);z-index:10;border-bottom:1px solid var(--border)}
+.back-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.back-btn:active{background:var(--bg2)}
+.header-title{font-size:16px;font-weight:700;flex:1;color:var(--text)}
+.header-badge{font-size:11px;padding:3px 9px;border-radius:20px;background:var(--bg2);border:1px solid var(--border);color:var(--text2)}
+
+/* ══ BROWSE ══ */
+#screen-browse{background:var(--bg);overflow-y:auto}
+.browse-scroll{padding:0 0 40px}
+.section-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);padding:0 18px;margin-bottom:8px;margin-top:18px}
+.topic-select-list{padding:0 18px}
+.topic-select-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:background .15s;box-shadow:var(--shadow-sm)}
+.topic-select-item:active{background:var(--bg2)}
+.topic-select-item.done{border-color:rgba(22,163,74,.3)}
+.tsi-emoji{font-size:22px;width:28px;text-align:center}
+.tsi-info{flex:1}
+.tsi-name{font-size:14px;font-weight:600;color:var(--text)}
+.tsi-count{font-size:11px;color:var(--text3);margin-top:2px}
+.tsi-right{display:flex;align-items:center;gap:7px}
+.tsi-done{font-size:10px;font-weight:700;color:var(--success);background:var(--success-bg);padding:2px 6px;border-radius:6px}
+.tsi-arrow{color:var(--text3);font-size:14px}
+
+/* ══ TYPE SELECT ══ */
+#screen-type{background:var(--bg);overflow-y:auto}
+.type-scroll{padding:0 18px 40px}
+.topic-hero-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center;margin-bottom:16px;margin-top:4px;box-shadow:var(--shadow-sm)}
+.topic-hero-emoji{font-size:42px;margin-bottom:8px}
+.topic-hero-name{font-size:20px;font-weight:700;margin-bottom:4px;color:var(--text)}
+.topic-hero-label{font-size:12px;color:var(--text3)}
+.type-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:10px;cursor:pointer;transition:background .15s;box-shadow:var(--shadow-sm)}
+.type-card:active{background:var(--bg2)}
+.type-card-header{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.type-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.type-icon.general{background:var(--accent-bg)}
+.type-icon.roleplay{background:rgba(124,58,237,.1)}
+.type-title{font-size:14px;font-weight:700;color:var(--text)}
+.type-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.type-chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{font-size:10px;padding:3px 7px;border-radius:20px;background:var(--bg2);color:var(--text2);border:1px solid var(--border)}
+
+/* ══ PRACTICE ══ */
+#screen-practice{background:var(--bg)}
+.practice-header{padding:50px 18px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid var(--border);background:var(--bg)}
+.practice-meta{display:flex;align-items:center;gap:7px;flex:1}
+.practice-topic-badge{font-size:11px;padding:4px 10px;border-radius:20px;background:var(--bg2);border:1px solid var(--border);color:var(--text2);max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.practice-q-badge{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;background:var(--accent-bg);color:var(--accent)}
+.exit-btn{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 11px;font-size:11px;font-weight:600;color:var(--text2);cursor:pointer;font-family:var(--font);transition:background .15s}
+.exit-btn:active{background:var(--bg2)}
+.practice-body{flex:1;padding:16px 18px 28px;display:flex;flex-direction:column;gap:12px;overflow-y:auto}
+.prep-phase{display:flex;flex-direction:column;gap:12px}
+.q-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow-sm)}
+.q-card-label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
+.q-text{font-size:15px;line-height:1.7;color:var(--text)}
+.timer-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;display:flex;flex-direction:column;align-items:center;gap:10px;box-shadow:var(--shadow-sm)}
+.timer-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)}
+.timer-ring-wrap{position:relative;width:92px;height:92px}
+.timer-ring{position:absolute;top:0;left:0;transform:rotate(-90deg)}
+.timer-ring-bg{fill:none;stroke:var(--bg2);stroke-width:6}
+.timer-ring-prog{fill:none;stroke:var(--accent);stroke-width:6;stroke-linecap:round;stroke-dasharray:270;stroke-dashoffset:0;transition:stroke-dashoffset 1s linear,stroke .5s}
+.timer-num{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--text)}
+.timer-hint{font-size:12px;color:var(--text2);text-align:center}
+.prep-skip-btn{background:var(--accent);color:#fff;border:none;border-radius:var(--radius);padding:14px;width:100%;font-family:var(--font);font-size:14px;font-weight:600;cursor:pointer;transition:opacity .15s}
+.prep-skip-btn:active{opacity:.85}
+.record-phase{display:none;flex-direction:column;gap:12px}
+.record-phase.active{display:flex}
+.record-status-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px 20px;display:flex;flex-direction:column;align-items:center;gap:12px;box-shadow:var(--shadow-sm)}
+.record-pulse{width:72px;height:72px;border-radius:50%;background:var(--danger-bg);border:2px solid rgba(220,38,38,.3);display:flex;align-items:center;justify-content:center;font-size:26px;position:relative}
+.record-pulse.active::before{content:'';position:absolute;top:-9px;left:-9px;right:-9px;bottom:-9px;border-radius:50%;background:rgba(220,38,38,.06);animation:pulseRing 1.5s ease-out infinite}
+@keyframes pulseRing{0%{transform:scale(.9);opacity:.8}100%{transform:scale(1.18);opacity:0}}
+.record-time{font-size:34px;font-weight:300;font-variant-numeric:tabular-nums;letter-spacing:3px;color:var(--text)}
+.record-hint{font-size:12px;color:var(--text2)}
+.record-stop-btn{background:var(--danger);color:#fff;border:none;border-radius:var(--radius);padding:14px;width:100%;font-family:var(--font);font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s}
+.record-stop-btn:active{opacity:.85}
+
+/* ══ SCRIPT ══ */
+#screen-script{background:var(--bg);overflow-y:auto}
+.script-scroll{padding:0 18px 20px;display:flex;flex-direction:column;gap:12px}
+.study-mode-banner{background:var(--success-bg);border:1px solid rgba(22,163,74,.25);border-radius:10px;padding:8px 14px;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--success);font-weight:600}
+.script-q-card{background:var(--accent-bg);border:1px solid rgba(91,91,214,.2);border-radius:var(--radius);padding:14px 16px}
+.script-q-label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:7px}
+.script-q-text{font-size:14px;line-height:1.65;color:var(--text)}
+.script-answer-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow-sm)}
+.script-answer-label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
+.script-text{font-size:14px;line-height:1.85;color:var(--text2)}
+.expr-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px}
+.expr-label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:7px}
+.expr-item{font-size:13px;color:var(--text2);padding:6px 10px;background:var(--surface);border-radius:7px;border:1px solid var(--border);line-height:1.5;margin-bottom:5px}
+.expr-item:last-child{margin-bottom:0}
+.script-nav-row{display:flex;gap:10px;padding:4px 18px 36px}
+.snav-btn{flex:1;padding:13px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:background .15s;text-align:center;box-shadow:var(--shadow-sm)}
+.snav-btn:active{background:var(--bg2)}
+.snav-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 2px 10px rgba(91,91,214,.25)}
+.snav-btn.success{background:var(--success);border-color:var(--success);color:#fff;box-shadow:0 2px 10px rgba(22,163,74,.2)}
+.snav-btn.orange{background:#ea580c;border-color:#ea580c;color:#fff;box-shadow:0 2px 10px rgba(234,88,12,.2)}
+
+/* ══ HISTORY ══ */
+#screen-history{background:var(--bg);overflow-y:auto}
+.history-scroll{padding:0 18px 40px}
+.stats-2col{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;box-shadow:var(--shadow-sm)}
+.stat-num{font-size:26px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums;color:var(--text)}
+.stat-unit{font-size:10px;color:var(--text3);margin-top:3px}
+.progress-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow-sm)}
+.progress-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.progress-title{font-size:13px;font-weight:700;color:var(--text)}
+.progress-pct{font-size:13px;font-weight:700;color:var(--accent)}
+.progress-bar-bg{height:5px;background:var(--bg2);border-radius:3px;overflow:hidden;margin-bottom:5px}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px;transition:width .6s ease}
+.progress-sub{font-size:10px;color:var(--text3)}
+.topic-prog-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.topic-prog-item:last-child{border-bottom:none}
+.tpi-emoji{font-size:14px;width:20px;text-align:center}
+.tpi-info{flex:1}
+.tpi-name{font-size:12px;font-weight:500;color:var(--text)}
+.tpi-bar-bg{height:3px;background:var(--bg2);border-radius:2px;margin-top:4px}
+.tpi-bar-fill{height:100%;border-radius:2px;background:var(--accent)}
+.tpi-count{font-size:11px;color:var(--text3);width:24px;text-align:right}
+.history-list{display:flex;flex-direction:column;gap:7px}
+.history-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 13px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow-sm)}
+.hi-emoji{font-size:18px}
+.hi-info{flex:1}
+.hi-topic{font-size:13px;font-weight:500;color:var(--text)}
+.hi-meta{font-size:10px;color:var(--text3);margin-top:1px}
+.hi-type{font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;background:var(--accent-bg);color:var(--accent)}
+.hi-type.rp{background:rgba(124,58,237,.1);color:var(--accent2)}
+.hi-type.study{background:var(--success-bg);color:var(--success)}
+.empty-state{text-align:center;padding:36px 20px;color:var(--text3)}
+.empty-icon{font-size:32px;margin-bottom:10px}
+.empty-text{font-size:13px;line-height:1.7}
+
+/* ══ MODAL ══ */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:300;display:none;align-items:flex-end;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal-sheet{background:var(--surface);border:1px solid var(--border);border-radius:20px 20px 0 0;padding:24px 20px 40px;width:100%;max-width:430px;box-shadow:0 -4px 24px rgba(0,0,0,.1)}
+.modal-title{font-size:16px;font-weight:700;margin-bottom:6px;color:var(--text)}
+.modal-desc{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:20px}
+.modal-btns{display:flex;flex-direction:column;gap:8px}
+.modal-btn{width:100%;padding:13px;border-radius:var(--radius);border:none;font-family:var(--font);font-size:14px;font-weight:600;cursor:pointer;transition:opacity .15s}
+.modal-btn:active{opacity:.85}
+.modal-btn.danger{background:var(--danger);color:#fff}
+.modal-btn.cancel{background:var(--bg2);border:1px solid var(--border);color:var(--text)}
+
+/* ══ MIC PERMISSION BANNER ══ */
+.mic-banner{background:#fff8e6;border:1px solid #f5c842;border-radius:10px;padding:10px 14px;font-size:12px;color:#92400e;display:none;align-items:flex-start;gap:8px;line-height:1.5}
+.mic-banner.show{display:flex}
+.mic-banner-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.mic-banner a{color:#92400e;font-weight:600}
+
+/* ══ TOAST ══ */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--surface);padding:10px 18px;border-radius:100px;font-size:12px;font-weight:600;white-space:nowrap;z-index:999;opacity:0;transition:opacity .25s;pointer-events:none}
+.toast.show{opacity:1}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fade-up{animation:fadeUp .25s ease forwards}
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div id="screen-home" class="screen active">
+<div class="home-scroll">
+  <div class="home-topbar">
+    <div class="home-topbar-title">OPIc Practice</div>
+    <div style="position:relative">
+      <button class="more-btn" onclick="toggleDropdown()" id="more-btn">···</button>
+      <div class="dropdown" id="dropdown">
+        <div class="dropdown-item" onclick="closeDropdown();showScreen('history')">📊 학습 현황 보기</div>
+        <div class="dropdown-divider"></div>
+        <div class="dropdown-item danger" onclick="confirmReset()">🗑️ 히스토리 초기화</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="action-row">
+    <button class="start-hero-btn" onclick="startRandom()">
+      <div class="start-hero-bg">
+        <div class="start-orb2"></div>
+        <div class="start-hero-inner">
+          <div class="start-eyebrow">랜덤 연습</div>
+          <div class="start-title">지금 바로<br>시작하기</div>
+          <div class="start-badge"><div class="cta-dot"></div>바로 시작</div>
+        </div>
+      </div>
+    </button>
+    <button class="study-btn" onclick="startStudy()">
+      <div class="study-hero-bg">
+        <div class="study-orb2"></div>
+        <div class="study-inner">
+          <div class="start-eyebrow" style="color:rgba(255,255,255,.55)">스크립트</div>
+          <div class="start-title">학습<br>하기</div>
+          <div class="study-badge">📖 읽기 모드</div>
+        </div>
+      </div>
+    </button>
+  </div>
+
+  <button class="browse-btn" onclick="showScreen('browse')">
+    <div class="browse-btn-left">
+      <div class="browse-btn-icon">📚</div>
+      <div>
+        <div class="browse-btn-title">주제를 선택하여 연습하기</div>
+        <div class="browse-btn-sub">일반 13개 · 돌발 10개</div>
+      </div>
+    </div>
+    <div class="browse-btn-arrow">›</div>
+  </button>
+
+  <div class="home-stats-card" onclick="showScreen('history')">
+    <div class="home-stats-top">
+      <div class="home-stats-label">나의 학습 현황</div>
+      <div class="home-stats-arrow">›</div>
+    </div>
+    <div class="home-stats-row">
+      <div class="home-stat-item"><div class="home-stat-num" id="home-total">0</div><div class="home-stat-unit">총 연습 횟수</div></div>
+      <div class="home-stat-item"><div class="home-stat-num" id="home-topics">0</div><div class="home-stat-unit">연습한 주제</div></div>
+      <div class="home-stat-item"><div class="home-stat-num home-stat-pct" id="home-pct">0%</div><div class="home-stat-unit">전체 진행률</div></div>
+    </div>
+    <div class="stats-progress-wrap">
+      <div class="stats-progress-label"><span id="stats-prog-label">0 / 23 주제</span><span id="stats-prog-pct">0%</span></div>
+      <div class="stats-bar-bg"><div class="stats-bar-fill" id="stats-bar" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <div class="home-history-card">
+    <div class="hhc-header">
+      <div class="hhc-title">최근 연습 기록</div>
+      <button class="hhc-more" onclick="showScreen('history')">전체 보기 ›</button>
+    </div>
+    <div id="home-recent-list"></div>
+  </div>
+</div>
+</div>
+
+<!-- BROWSE -->
+<div id="screen-browse" class="screen">
+<div class="browse-scroll">
+  <div class="screen-header">
+    <button class="back-btn" onclick="showScreen('home')">←</button>
+    <div class="header-title">주제 선택</div>
+  </div>
+  <div class="section-label">일반 주제</div>
+  <div class="topic-select-list" id="browse-general-list"></div>
+  <div class="section-label">돌발 주제</div>
+  <div class="topic-select-list" id="browse-sudden-list"></div>
+</div>
+</div>
+
+<!-- TYPE SELECT -->
+<div id="screen-type" class="screen">
+  <div class="screen-header">
+    <button class="back-btn" onclick="showScreen('browse')">←</button>
+    <div class="header-title">유형 선택</div>
+  </div>
+  <div class="type-scroll">
+    <div id="type-hero" class="topic-hero-card"></div>
+    <div id="type-options"></div>
+  </div>
+</div>
+
+<!-- PRACTICE -->
+<div id="screen-practice" class="screen">
+  <div class="practice-header">
+    <div class="practice-meta">
+      <div class="practice-topic-badge" id="prac-topic-badge">주제</div>
+      <div class="practice-q-badge" id="prac-q-badge">1 / 3</div>
+    </div>
+    <button class="exit-btn" onclick="exitPractice()">연습 종료</button>
+  </div>
+  <div class="practice-body" id="practice-body">
+    <div id="mic-warn" class="mic-banner">
+      <span class="mic-banner-icon">🎙️</span>
+      <span>녹음하려면 <b>마이크 권한</b>이 필요합니다. 브라우저 주소창 왼쪽 자물쇠(🔒) 또는 설정 → 사이트 권한 → 마이크를 <b>허용</b>으로 바꿔주세요.</span>
+    </div>
+    <div class="prep-phase" id="prep-phase">
+      <div class="q-card"><div class="q-card-label">Question</div><div class="q-text" id="prep-q-text"></div></div>
+      <div class="timer-card">
+        <div class="timer-label">답변 준비 시간</div>
+        <div class="timer-ring-wrap">
+          <svg class="timer-ring" width="92" height="92" viewBox="0 0 92 92">
+            <circle class="timer-ring-bg" cx="46" cy="46" r="43"/>
+            <circle class="timer-ring-prog" id="timer-prog" cx="46" cy="46" r="43"/>
+          </svg>
+          <div class="timer-num" id="timer-num">60</div>
+        </div>
+        <div class="timer-hint">질문을 읽고 답변을 준비하세요</div>
+      </div>
+      <button class="prep-skip-btn" onclick="startRecording()">지금 바로 답변하기 →</button>
+    </div>
+    <div class="record-phase" id="record-phase">
+      <div class="q-card"><div class="q-card-label">Question</div><div class="q-text" id="rec-q-text"></div></div>
+      <div class="record-status-card">
+        <div class="record-pulse" id="record-pulse">🎙️</div>
+        <div class="record-time" id="rec-time">0:00</div>
+        <div class="record-hint">말하기를 마치면 아래 버튼을 눌러주세요</div>
+      </div>
+      <button class="record-stop-btn" onclick="stopRecording()">⏹ 답변 완료</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCRIPT -->
+<div id="screen-script" class="screen">
+  <div class="screen-header">
+    <button class="back-btn" id="script-back-btn" onclick="backFromScript()">←</button>
+    <div class="header-title">모범 답안</div>
+    <div class="header-badge" id="script-q-badge">1 / 3</div>
+  </div>
+  <div class="script-scroll" id="script-body"></div>
+  <div class="script-nav-row" id="script-nav"></div>
+</div>
+
+<!-- HISTORY -->
+<div id="screen-history" class="screen">
+  <div class="screen-header">
+    <button class="back-btn" onclick="showScreen('home')">←</button>
+    <div class="header-title">학습 히스토리</div>
+  </div>
+  <div class="history-scroll" id="history-body"></div>
+</div>
+
+<!-- RESET MODAL -->
+<div class="modal-overlay" id="reset-modal" onclick="closeModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-title">히스토리 초기화</div>
+    <div class="modal-desc">모든 연습 기록과 진행률이 삭제됩니다.<br>이 작업은 되돌릴 수 없어요.</div>
+    <div class="modal-btns">
+      <button class="modal-btn danger" onclick="doReset()">초기화하기</button>
+      <button class="modal-btn cancel" onclick="closeResetModal()">취소</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const OPIC_DATA = {
+  general:[
+    {id:"workplace",name:"직장",emoji:"🏢",
+     general:[
+      {type:"자기소개",q:"Please introduce yourself and tell me about your job and what kind of work you do.",
+       script:"I work as a UX designer at Samsung Electronics, and I'm currently leading a design group with about forty members. Our team designs SmartThings, a smart home application that allows users to control and monitor home devices through the cloud. My main role is to ensure the app is both visually appealing and easy to use, while also maintaining consistency across different devices. In my daily work, I collaborate closely with planners, designers, and developers. We discuss design concepts, share prototypes, and make improvements based on user feedback. Creativity and communication are key parts of my job, especially since we work with many stakeholders, including teams that make appliances like refrigerators or washing machines. To stay user-centered, we also conduct research and trend analysis to understand customers' needs better. I truly enjoy my work because it allows me to combine creativity and technology to make people's lives more convenient. Even though managing multiple opinions can be challenging, it's rewarding to see our ideas come to life in a product that millions of people use every day.",
+       expressions:["user-centered (사용자 중심의)","stakeholder (이해관계자)"]},
+      {type:"인물 설명",q:"Describe one of your colleagues or team leaders. What kind of person is he or she, and what makes that person special?",
+       script:"Let me tell you about a part leader of my group, Yujin. She is the head of one of the three design parts in my UX design group at Samsung Electronics. She's known for being very detail-oriented and highly organized, which makes her an incredible leader to work with. Yujin always plans things ahead and manages her team's schedule in a very systematic way. For example, before we start any new design project, she prepares a clear roadmap with specific goals and milestones. Thanks to her structured approach, our design process goes very smoothly, even when we work with multiple departments like planning and development. Another thing I really like about her is that she communicates very effectively. She always listens carefully to our opinions and gives thoughtful feedback. Because of her open communication style, our team feels very connected and motivated. Overall, Yujin is not only an excellent manager but also a great colleague. She keeps our team organized, communicates well, and inspires us to do our best work. I feel lucky to work with someone so professional and supportive.",
+       expressions:["detail-oriented (꼼꼼한)","structured approach (체계적인 접근 방식)"]},
+      {type:"장소 설명",q:"Describe your workplace. What does it look like, and what kind of atmosphere does it have?",
+       script:"I work at the Samsung Electronics headquarters, in the UX design division for SmartThings. Our office is located on the 11th floor, which is the highest floor in the building. From our windows, we can see a beautiful mountain view, and during winter, the snow-covered scenery looks absolutely stunning. The office has a modern and open-space layout with bright lighting and wide desks that make it easy for us to collaborate. One of the best things about our office is the pantry. It's a cozy space where we can grab some coffee, have snacks, or just relax for a few minutes between meetings. It really helps us recharge during a busy day. Another unique feature is our IoT experience zone. Since we work on the SmartThings app, we have an area where we can actually test and experience various smart home devices, like connected lights, air purifiers, and washing machines. It feels like working in a mini smart home. Overall, our workplace is not just a place to work but also a creative environment that inspires us every day.",
+       expressions:["snow-covered scenery (눈 덮인 풍경)","hands-on IoT zone (직접 체험할 수 있는 IoT 공간)"]},
+      {type:"습관/경향",q:"What kind of work habits do you have at your workplace? How do they help you be more effective?",
+       script:"At work, I have several well-structured habits that help me stay efficient and organized. Since I work as a UX designer at Samsung Electronics, I often juggle multiple projects and meetings, so having a solid routine is essential for me. Every morning, I start my day by checking my calendar and setting clear priorities. I also go through my emails and handle quick tasks first, so nothing piles up later. During meetings, I always bring my tablet to take digital notes, which helps me focus and capture important points. After each meeting, I take screenshots of my notes and share them with my team through our messenger. This way, everyone stays aligned and informed without having to wait for a formal summary. These simple habits not only save me time but also make collaboration much smoother.",
+       expressions:["stay aligned (의견을 일치시키다)","pile up (일이 쌓이다)"]},
+      {type:"기억에 남는 경험",q:"Tell me about a memorable experience you've had at work. What happened, and why was it special to you?",
+       script:"One of the most memorable experiences I've had at work was a future design project we carried out earlier this year. As the leader of the UX design group, I led a task force of seven designers to create a forward-looking smart home experience for the year 2027. It was an ambitious project that required creativity, collaboration, and a lot of deep thinking about how people would live in the future. During the early phase, we gathered insights from our previous research and came up with a wide range of ideas and design directions. We created multiple prototypes and even produced a high-quality video to visualize the concept. The internal feedback was amazing — many teams were impressed by the level of creativity and detail. To find out if real users would feel the same way, we ran a user research session. We prepared paper prototypes and asked participants to create their own smart home screens based on our design. The reaction was very positive — many users said they couldn't wait to try this new design in real life.",
+       expressions:["ambitious project (야심찬 프로젝트)","paper prototype (종이로 만든 프로토타입)"]},
+      {type:"문제 해결",q:"Tell me about a time when you faced a problem at work. How did you handle it?",
+       script:"One of the most challenging problems I faced at work was during a major design renewal project for the SmartThings app. Our UX team and the development team had very different opinions about how to structure the new interface. While we wanted to simplify the layout for a smoother user experience, the developers were more focused on technical efficiency and system stability. At one point, the project even got delayed because we couldn't agree on the design direction. As the UX group leader, I decided to arrange a series of joint workshops where designers and developers could openly discuss their concerns and priorities. During these sessions, we sketched ideas together, mapped out user journeys, and visualized how the design could balance both usability and technical feasibility. Gradually, we found a middle ground that satisfied everyone — a layout that was clean but still practical for development. In the end, the renewed design received positive feedback from both internal teams and real users.",
+       expressions:["find a middle ground (타협점을 찾다)","technical feasibility (기술적 실현 가능성)"]},
+      {type:"이슈/의견",q:"There is a growing debate about whether AI tools should be used more actively in design work. What do you think about this issue?",
+       script:"These days, the use of AI tools in design has become one of the hottest topics among designers. Many people are trying to figure out how to use AI more effectively, and I'm one of them. Personally, I started to feel a bit concerned that AI could easily replace some parts of a designer's work. That made me think that instead of being replaced, we should learn how to use AI as an assistant to make our work smarter and faster. In my UX design group, we even held a workshop to explore how to use AI more efficiently in our daily work. We found that AI can help make UX texts easier to understand and more consistent in tone. It can also generate images much faster than humans, and sometimes AI even gives us creative ideas that we wouldn't have thought of ourselves. But through this process, I learned something important — the quality of AI's output depends on the person who uses it. How you train it, how you prompt it, and how you interpret its results make a huge difference. When great designers learn to use AI intelligently, the speed and quality of design can reach a whole new level.",
+       expressions:["prompt (AI에게 명령을 입력하다)","reach a whole new level (한 단계 더 발전하다)"]}
+     ],
+     roleplay:[
+      {type:"전화로 질문하기",q:"Imagine that your team has an important meeting coming up. Call your coworker to ask about the meeting and get more information.",
+       script:"Hi, this is Minjung. How are you? I just wanted to check in about the team meeting we have this week. I heard it's been scheduled, but I don't have all the details yet. First, could you tell me what day and time the meeting is supposed to be? And do you know whether it'll be in person or online? If it's online, could you share the meeting link with me? Also, who's going to lead the meeting this time — our manager or the project lead? And are there any materials or reports we should prepare in advance? That's great, thanks for clarifying everything. I'll make sure to check the shared calendar and be ready for it. See you at the meeting!",
+       expressions:["check in about~ (~에 대해 확인하다)","clarify everything (모든 걸 명확히 해주다)"]},
+      {type:"예매/약속하기",q:"You are planning an important team meeting next week. Call the office manager to book a meeting room.",
+       script:"Hi, this is Minjung from the UX design group. I'm calling to book a meeting room for next week. We're planning a team meeting to review our new project proposal, and I wanted to check which rooms are available. We'll need a room that can fit about ten people, and we'll probably need it for around two hours. Do you have anything available on Tuesday afternoon, maybe around 2 p.m.? If that's not available, Wednesday morning would work too. Also, does the room have a projector and a video conferencing setup? We'll have one team member joining online, so that would be really helpful. Perfect! Tuesday at 2 p.m. in Meeting Room B works great. Could you please send me a confirmation email and reserve it under my name? Thank you so much!",
+       expressions:["fit about ten people (약 10명이 들어가다)","reserve it under my name (내 이름으로 예약하다)"]}
+     ]
+    },
+    {id:"home",name:"사는 곳",emoji:"🏠",
+     general:[
+      {type:"자기소개",q:"Can you introduce the neighborhood where you live?",
+       script:"I live in a newly developed neighborhood that was built about four years ago. It's a residential area made up mostly of apartment complexes, and it's designed in a very organized and convenient way. Between the buildings, there's a small stream that runs through the town, which makes the scenery quite peaceful. At the center of the neighborhood, there's an elementary school, a kindergarten, and a new library that is currently under construction. Because everything is located close together, life here is very convenient, especially for families with young children. My sons can go to school and then walk to their after-school academies nearby, which saves a lot of time. In the evenings or on weekends, many families gather around the central square next to the school. Kids play while parents chat or take walks. It feels like a small community where everyone is connected in some way.",
+       expressions:["residential area (주거 지역)","peaceful scenery (평화로운 풍경)"]},
+      {type:"인물 설명",q:"Tell me about one of your neighbors whom you know well.",
+       script:"I live in a newly developed city that was built about four years ago. When I first moved here, I didn't really know anyone in the neighborhood. But since my son started going to the school located in the center of our town, I naturally got to know other parents. Among them, there is one person named Suhyun. She is the mother of my son's best friend, and she is such a cheerful and energetic person. She always has a bright smile on her face and knows how to make people laugh. She's very good at telling funny stories, so whenever there's a small gathering, she becomes the one who leads the conversation and creates a lively atmosphere. Thanks to her, I've also been able to meet and connect with many other neighbors. A few months ago, we even went camping together with our kids and other parents.",
+       expressions:["newly developed city (신도시)","lead the conversation (이야기의 흐름을 주도하다)"]},
+      {type:"장소 설명",q:"Describe your neighborhood. What does it look like, and what kind of places are there?",
+       script:"My neighborhood is a newly developed town that was built only about four years ago. It's made up of several large apartment complexes that are neatly arranged around a small stream running through the center. At the heart of the town, there's a big elementary school and a kindergarten right next to it. A new public library is being built nearby, so the area is becoming even more convenient for families with children. There's also a small commercial area where people can find coffee shops, restaurants, and grocery stores. Everything is within walking distance, which makes daily life very easy. One of my favorite places in the neighborhood is the central square near the school. Every evening, kids play there while parents sit on benches and chat. On weekends, it almost feels like a small festival because so many people gather there.",
+       expressions:["commercial area (상업 지역)","public library (공공 도서관)"]},
+      {type:"비교하기",q:"Compare your current home with the place where you lived before. How are they different?",
+       script:"The place where I used to live was an older apartment, and it was smaller compared to the one I live in now. It was a bit outdated and didn't have many facilities inside the complex. My current home, on the other hand, is much newer and more spacious. We have a gym, a small library, a screen golf range, and even a kids' playroom where children can have fun safely. I think these amenities are what make modern apartments so comfortable to live in. Of course, there's a downside too — the maintenance fee is almost three times higher than before. Still, I believe it's worth paying for. My husband especially loves this house so much that he says he never wants to move again.",
+       expressions:["amenities (편의 시설)","maintenance fee (관리비)"]},
+      {type:"습관/경향",q:"What do you usually do in your neighborhood during your free time?",
+       script:"During my free time, I usually spend time around my neighborhood because it's comfortable and everything I need is close by. My family and I often take walks along the small stream that runs through the town. On weekends, we often go to the central square near the school. My kids play with their friends while my husband and I meet other parents and chat. Sometimes we grab a coffee from a nearby café and just sit on the benches watching the kids play. It's become our weekend routine, and it helps us feel connected to our neighbors. Because the area is well-designed and family-friendly, we don't really need to leave the neighborhood to have a good time.",
+       expressions:["weekend routine (주말의 일상적인 습관)","family-friendly (가족 친화적인)"]},
+      {type:"기억에 남는 경험",q:"Tell me about a memorable experience you had in your neighborhood.",
+       script:"One of the most memorable experiences I've had in my neighborhood was when I went camping with other families who live nearby. It all started because my son's best friend's mother, Suhyun, suggested organizing a small family camping trip together. At first, I wasn't sure how it would turn out since most of us didn't know each other very well. But it ended up being such a fun and unforgettable experience. We went to a campsite just outside our town, and each family brought their own food to share. While the kids played together, the parents sat around the campfire, talking and laughing late into the night. Thanks to Suhyun, everyone opened up and we became much closer as neighbors. That trip made me realize how lucky I am to live in such a friendly community.",
+       expressions:["campfire (모닥불)","build strong connections (긴밀한 관계를 형성하다)"]},
+      {type:"문제 해결",q:"Tell me about a problem you faced in your home and how you dealt with it.",
+       script:"This happened when we were living in our previous home, which was located on the second floor of a building with a piloti structure — meaning there was no first floor, just open space for parking. One winter, the weather became extremely cold, and the drainage pipes that went down from the second floor froze completely. Because our apartment was the lowest residential unit, we were the first to be affected. Whenever we used the washing machine, the water couldn't drain properly and started overflowing onto the balcony. We tried contacting the management office, but they said they couldn't fix it until the temperature went up. So, for the rest of that winter, we had to avoid using the washing machine. After a few weeks, the weather finally warmed up, and the pipes thawed naturally.",
+       expressions:["piloti structure (필로티 구조)","thaw (얼음이 녹다)"]}
+     ],
+     roleplay:[]
+    },
+    {id:"park",name:"공원 가기",emoji:"🌳",
+     general:[
+      {type:"자기소개",q:"Can you describe a park you often go to in detail?",
+       script:"One of my favorite places to visit is Gwanggyo Lake Park, which is located near my home in Suwon. It's a very large and beautiful park with two big lakes surrounded by walking trails and trees. The park is clean, well-designed, and has everything you need to enjoy a relaxing day outdoors. There's also a public library inside the park, which makes it feel like a cultural space, not just a place for exercise. My family and I often go there on weekends to take a walk, enjoy the fresh air, and sometimes set up a small tent on the grass. When the weather is warm, our kids like playing near the fountain or splashing water with their friends. Around the park, there are lots of nice restaurants and cafés, so after spending time outdoors, we usually grab dinner or coffee before heading home. For me, Gwanggyo Lake Park is a perfect place to unwind and spend quality time with my family. Every season brings a different charm — spring flowers, summer breezes, and autumn leaves — so it never gets boring.",
+       expressions:["unwind (휴식하다, 긴장을 풀다)","quality time (소중한 시간)"]},
+      {type:"장소 설명",q:"Describe the park you often go to. What does it look like, and what can people do there?",
+       script:"One of my favorite places to visit is Gwanggyo Lake Park in Suwon. It's a very large park built around two beautiful lakes connected by long walking trails. The scenery is amazing — when you walk along the path, you can see the sunlight reflecting off the water and people enjoying a peaceful stroll. There's a big grassy area where families can sit or set up small tents, and a fountain where kids love to play during the summer. One of the most unique places in the park is the Children's Library, located near the lake. It's a modern glass building filled with picture books, small reading rooms, and cozy seating areas. On weekends, you can always see parents reading with their children, and it gives the park a very warm and educational atmosphere. Around the park, there are also many cafés and restaurants, so people often stop by for coffee or dinner after walking.",
+       expressions:["reflect off the water (물에 반사되다)","educational atmosphere (교육적인 분위기)"]},
+      {type:"비교하기",q:"Compare the park you go to now with another park you've been to before.",
+       script:"Before I started going to Gwanggyo Lake Park, my family and I used to visit a small neighborhood park near our old home. It was simple — just a few benches, a small playground, and some walking paths. It was nice for short walks, but it didn't have much space or many facilities. Now, we often go to Gwanggyo Lake Park, and it feels completely different. It's much larger, more scenic, and better designed. There are wide grassy areas where people can relax, a big fountain where kids can play in the summer, and even a Children's Library where families can spend quiet time reading. The park also has cafés and restaurants around the lake. I think what I love most about it is that it brings together relaxation, learning, and family time all in one place.",
+       expressions:["scenic (풍경이 아름다운)","bring together (하나로 모으다)"]},
+      {type:"습관/경향",q:"What do you usually do when you go to the park?",
+       script:"I usually go to Gwanggyo Lake Park with my family, especially with my two sons. It has become one of our favorite weekend routines. Before we leave home, we often prepare a simple picnic lunch — sandwiches, fruit, or kimbap. When we arrive, we find a nice grassy spot to spread out our tent and enjoy our meal together. My kids love lying down inside the tent after lunch, while my husband and I usually get some take-out coffee from a café nearby. Walking around the lake with a cup of coffee in hand is one of the most peaceful moments of my week. After eating, we like to take a slow walk around the park and stop by small cafés and shops along the lake.",
+       expressions:["take-out coffee (테이크아웃 커피)","part of our weekend life (우리 주말의 일상적인 일부)"]},
+      {type:"기억에 남는 경험",q:"Tell me about a memorable experience you had at the park.",
+       script:"One of the most memorable experiences I've had at Gwanggyo Lake Park was the first time I took my children to the Children's Library there. It was a sunny spring afternoon, and the weather was perfect — warm but breezy. We spread out a picnic mat on the grass, had a light lunch, and then decided to visit the library nearby. As soon as we entered, my kids' eyes lit up. The inside had a warm wooden design and soft lighting. There were comfortable mats on the floor, and children were lying down reading picture books or crawling into small tunnel-like spaces filled with comics. My kids immediately found their favorite books and started reading quietly, completely absorbed in their stories. I remember sitting beside them, watching how peaceful and focused they looked. It was one of those rare moments when everything felt perfectly still and happy.",
+       expressions:["light up (얼굴이 환해지다)","absorbed in (…에 몰두한)"]},
+      {type:"문제 해결",q:"Tell me about a problem you faced at the park and how you solved it.",
+       script:"One time, my family and I went to Gwanggyo Lake Park and decided to ride some bikes together. We planned to use the city's bike-sharing service, thinking there would be bikes available everywhere in the park. But all the bikes near the entrance were already taken, and the only ones left were at the far end of the park. So, we had to walk quite a long distance to get there under the hot sun. When we finally found the bikes, we were happy to start riding — but then another problem came up. Since these were shared bikes, we later realized that we had to return them to the exact same station where we picked them up. We hadn't known that before! So after riding around the lake, we had to go all the way back. It definitely turned into an unexpected workout! We laughed about it and joked that we probably burned more calories walking than riding.",
+       expressions:["bike-sharing service (공유 자전거 서비스)","unexpected workout (예상치 못한 운동)"]}
+     ],
+     roleplay:[]
+    },
+    {id:"beach",name:"해변 가기",emoji:"🏖️",
+     general:[
+      {type:"자기소개",q:"Please introduce yourself and tell me what kind of domestic travel you enjoy.",
+       script:"Hi, my name is Minjung, and I work for Samsung Electronics. It's a large company, so we have a variety of benefits and programs for employees. One of them is a resort partnership program that allows us to book vacation spots at discounted prices. That's actually how I first discovered a beautiful resort called Seolhaeone, located in Yangyang, Gangwon-do. I stayed there for the first time a few years ago, and I instantly fell in love with the place. The resort was modern yet peaceful, and it was close enough to the beach that I could take a short walk to the ocean whenever I wanted. Since then, my family and I have been visiting Yangyang quite often. It's become our go-to place whenever we need a short break from work and city life. My job can be quite demanding at times, so going to the beach and spending time in nature really helps me clear my mind. Watching the waves and breathing in the fresh air always makes me feel calm and recharged.",
+       expressions:["go-to place (자주 가는 단골 장소)","clear my mind (머리를 비우다)"]},
+      {type:"장소 설명",q:"Describe a beach club or restaurant you visited during a domestic trip.",
+       script:"One of my favorite places in Yangyang is a small beach club that serves hamburgers right by the ocean. I visited it with my family during a short trip to Gangwon-do last autumn, and it instantly became one of my favorite spots in Korea. The restaurant was literally built above the sand, so from our table, we could look straight out at the waves. The place had a very cozy and relaxing atmosphere. It wasn't crowded at all — actually, that evening we were the only customers there. The music was soft, the lights were warm, and the sea breeze came right through the open windows. We ordered burgers and fries, and while my husband and I sat under a blanket, our two sons ran out to play on the beach. It was chilly, but somehow, that made it feel even more peaceful. What I loved most about that place was how simple yet perfect it felt. There was nothing fancy — just good food, the sound of the waves, and the people I love.",
+       expressions:["cozy and relaxing atmosphere (아늑하고 편안한 분위기)","nothing fancy (특별할 건 없지만 정감 있는)"]},
+      {type:"비교하기",q:"Compare traveling to the beach and traveling to the city.",
+       script:"I've taken both beach trips and city trips, and honestly, they feel completely different. When I go to the beach, everything slows down. My family and I usually spend time walking along the shore, drinking coffee at small cafés, or just watching the kids play in the sand. It's peaceful and simple, and it gives us time to really talk and connect. The beach feels like a place to rest, not to rush. On the other hand, city trips are more dynamic and convenient. There are so many restaurants, shopping malls, and cultural places to visit. But because there's always so much happening, it sometimes feels a bit hectic. If I had to choose, I'd definitely say I prefer beach trips. They help me slow down, clear my mind, and focus on what really matters — spending quality time with my family. City trips are exciting, but beach trips are healing.",
+       expressions:["dynamic and convenient (활기차고 편리한)","focus on what really matters (진짜로 중요한 것에 집중하다)"]},
+      {type:"습관/경향",q:"Tell me how often you go on domestic trips, and what your usual routine is when you visit the beach.",
+       script:"My family and I usually go on domestic trips once or twice a year, and most of the time, we choose to visit the beach. Every summer, we drive to Gangwon-do, especially to Yangyang, to spend a few relaxing days together. It has become a little tradition for us. We usually leave early in the morning to avoid traffic and arrive around lunchtime. Once we get there, we have a quick meal and head straight to the beach. The kids love playing in the sand or collecting seashells, while my husband and I sit on the terrace of a café, watching them and enjoying an iced coffee. In the evening, we go out for seafood — grilled clams or sashimi — which has become a must-do for us. Before going back to our hotel, we always take a short walk along the shore to watch the waves under the night sky.",
+       expressions:["collecting seashells (조개껍질을 줍다)","must-do (꼭 해야 하는 일)"]},
+      {type:"기억에 남는 경험",q:"Tell me about a memorable experience you had during a domestic trip or at a beach.",
+       script:"One of the most memorable experiences I've had during a domestic trip was when my family and I visited Yangyang Beach in late autumn last year. After spending the day walking along the coast, we found a small hamburger restaurant built right above the sand. It was already getting dark, and the place was completely empty — no music, no people, just the sound of the waves and the cool sea breeze. We sat at a table that looked directly out over the beach, wrapped ourselves in blankets, and ordered some burgers and fries. Our two sons ran out to play on the sand while my husband and I watched them from the table. The air was chilly, but the atmosphere was so calm and peaceful that it felt like time had slowed down. I'll never forget that night. Just our family, the sea, and the quiet sound of the waves. It reminded me how beautiful simple moments can be.",
+       expressions:["the air was chilly (공기가 쌀쌀했다)","time had slowed down (시간이 느리게 흐르는 것 같았다)"]},
+      {type:"시작한 계기/변화",q:"Tell me how you started traveling to Yangyang and how it has changed over time.",
+       script:"I first started going to Yangyang a few years ago because of my company. I work for Samsung Electronics, and my company offers special vacation benefits that let employees book partner resorts at a discounted price. One day, while browsing the company's resort website, I came across a beautiful place called Seolhaeone Resort. It looked modern and peaceful, and the price was surprisingly reasonable, so I booked it right away for my family. That first trip turned out to be amazing. Our villa had two floors — the first floor had a spacious living room and kitchen, and the second floor had two bedrooms and two bathrooms. The following year, we decided to invite my parents to join us. Over time, what started as a simple company discount trip became one of our favorite family traditions. Every time we go, we enjoy the calm atmosphere, eat fresh seafood, and take evening walks by the beach.",
+       expressions:["came across (우연히 발견하다)","meaningful tradition (의미 있는 가족 전통)"]}
+     ],
+     roleplay:[
+      {type:"부탁하기",q:"There is a new restaurant close to your home and you want to go there with your friend. Call your friend and ask him or her to visit it with you.",
+       script:"Hey! It's me. How are you doing? I just wanted to tell you about this new beach restaurant near my place. I actually went there with my family last weekend, and it was such a great experience. The restaurant is right by the shore, so while the adults can sit and enjoy a nice meal, the kids can play safely on the sand. It's perfect for families — and honestly, the view is beautiful. I was thinking it'd be fun if we went there together next time. You could bring your kids too! They could play on the beach while we sit, eat, and finally catch up on everything we haven't talked about lately. The food was really good — their burgers and seafood were amazing, and the sunset view made it even better. Would this weekend work for you? Maybe Saturday evening? If you're free, I'll go ahead and make a reservation.",
+       expressions:["catch up on everything (못다 한 이야기를 나누다)","spend some quality time together (함께 의미 있는 시간을 보내다)"]}
+     ]
+    },
+    {id:"shopping",name:"쇼핑하기",emoji:"🛍️",
+     general:[
+      {type:"자기소개",q:"Could you tell me about your shopping habits?",
+       script:"I do a lot of shopping online these days, and I'd say it has become a big part of my daily life. I mostly use Coupang, which is the most popular online shopping platform in Korea. It's so convenient that I rarely go to physical stores anymore. I can buy everything I need — from groceries and snacks to clothes and small appliances — all in one place. I usually shop a few times a week, especially before the weekend. On Friday nights, I often buy food for the weekend so I don't have to go out. I also like to check the 'Previous Orders' section in the app to reorder things like milk and eggs, which we always need at home. When I buy new products, I compare the price per unit and check the ingredients carefully. It helps me choose better and spend money wisely. Overall, online shopping through Coupang fits perfectly with my lifestyle. It saves me so much time and effort, and I can focus on more important things, like spending time with my family.",
+       expressions:["shopping has become a big part of my daily life (쇼핑이 나의 일상에서 큰 부분을 차지하다)","spend money wisely (현명하게 돈을 쓰다)"]},
+      {type:"인물 설명",q:"Tell me about someone you usually go shopping with.",
+       script:"When I go shopping offline, I usually go with my husband. We have very different shopping styles, which makes things both interesting and sometimes a little funny. My husband is very price-sensitive — he loves comparing brands and finding the best deal. On the other hand, I care more about quality. I don't mind paying a bit more if it means getting something that lasts longer or feels better to use. Because of this difference, we sometimes end up arguing a little about what to buy. I already have a few favorite brands that I trust, so I tend to go straight for those. But my husband likes to take his time looking through different options, checking reviews, and comparing prices. I believe that efficient shopping — the kind that finishes as quickly as possible — is the best kind of shopping. Meanwhile, he actually enjoys the process itself.",
+       expressions:["price-sensitive (가격에 민감한)","efficient shopping (효율적인 쇼핑)"]},
+      {type:"장소 설명",q:"Could you describe your favorite place to shop?",
+       script:"These days, I rarely go to physical stores because I can find almost everything online. My favorite place to shop is definitely Coupang, which is one of the biggest online shopping platforms in Korea. I use the Coupang app almost every day to buy things I need for my family and myself. What I love the most about Coupang is how fast and convenient it is. Thanks to their 'Rocket Delivery' service, I usually receive what I ordered the very next morning. I don't need to waste time going out or waiting in line. I also like how the app recommends items based on my previous purchases — it's like it knows exactly what I need. Everything is just one click away. Overall, Coupang has completely changed the way I shop. I save so much time and energy, and I don't have to deal with traffic or crowded stores anymore.",
+       expressions:["Everything is just one click away (클릭 한 번이면 모든 게 가능하다)","It knows exactly what I need (마치 내가 필요한 걸 정확히 아는 것 같다)"]},
+      {type:"비교하기",q:"How would you compare online shopping and offline shopping?",
+       script:"When it comes to shopping, I definitely prefer online shopping because it's much more convenient. I can buy anything I need just by using my phone, and it gets delivered to my door the next day. I don't have to spend time driving, parking, or waiting in line. However, there's one big downside of online shopping that really bothers me — the amount of waste it creates. For example, when I order eggs online, they come in a big box filled with bubble wrap, ice packs, and other materials. After I unpack everything, I'm left with a pile of paper, plastic, and insulation waste. It feels really wasteful and makes me worry about the environment. So, even though online shopping is incredibly convenient, I sometimes miss the simplicity of offline shopping. When I buy things at a store, I can check the quality right away and there's almost no unnecessary packaging.",
+       expressions:["downside of online shopping (온라인 쇼핑의 단점)","worry about the environment (환경에 대해 걱정하다)"]},
+      {type:"기억에 남는 경험",q:"Tell me about a memorable shopping experience you've had.",
+       script:"One of the most memorable shopping experiences I've ever had was when I ordered hodu gangjeong on Coupang. I was really looking forward to it because it's one of my favorite snacks, and my kids love it too. But when I opened the box, something looked wrong. A walnut had rolled out, and when I checked the package, I saw that the whole container had completely broken apart. All the nuts had spilled everywhere. I was disappointed, of course, but I decided to take a picture and request a refund through the Coupang app. To my surprise, the refund was processed in just ten minutes. I couldn't believe how fast and easy it was. That experience really changed the way I think about online shopping. I realized that shopping is not just about good products, but also about how companies treat their customers. Coupang earned my trust that day.",
+       expressions:["refund was processed (환불이 처리되었다)","earned my trust (나의 신뢰를 얻었다)"]},
+      {type:"문제 해결",q:"Tell me about a time you had a problem while shopping and how you solved it.",
+       script:"I once had a problem when I ordered hodu gangjeong, a sweet walnut snack, from Coupang. When I opened the box, I noticed that something was off — a walnut was rolling around inside the delivery box. Then I found out that the snack container had completely broken, and the contents had spilled everywhere. It was a total mess. Instead of getting angry, I took a photo right away and submitted a refund request through the Coupang app. To my surprise, the refund was approved within just ten minutes. I didn't even have to talk to anyone or send the product back. The process was incredibly fast and stress-free. That experience showed me how much a company's service matters. Good customer service can turn a bad experience into a positive one.",
+       expressions:["approved within ten minutes (10분 내에 승인되었다)","turn a bad experience into a positive one (나쁜 경험을 좋은 경험으로 바꾸다)"]}
+     ],
+     roleplay:[
+      {type:"전화로 질문하기",q:"Pretend that you need to buy a smartphone. Call a store, and ask the clerk three or four questions about the devices.",
+       script:"Hi, I'm calling because I'm planning to buy a new smartphone, and I wanted to ask a few questions before I visit your store. First, could you tell me which models are currently available? I'm interested in the latest Galaxy and iPhone series, but I'd like to compare their prices. Also, do you have any ongoing promotions or discounts for new phones right now? I'm especially curious if there are any trade-in offers for older models. Another thing I wanted to check is the storage options. Do you have the 256GB versions in stock, or are they only available online? And lastly, could you let me know if accessories like cases and screen protectors are included, or if I need to buy them separately? Thank you so much for your help. I'll probably stop by this weekend to take a look in person.",
+       expressions:["trade-in offer (기기 교환 할인 혜택)","in stock (재고가 있는)"]}
+     ]
+    },
+    {id:"cafe",name:"카페 가기",emoji:"☕",
+     general:[
+      {type:"자기소개",q:"People set up appointments for various reasons. What sort of appointments do you usually make? Who do you usually meet with? Where do you usually meet them?",
+       script:"Hi there, I'm someone who really loves coffee — I honestly can't start my day without it. I usually drink at least two cups a day, and my favorite is definitely an iced latte. I love the balance between the smooth, creamy milk and the bold taste of espresso. I usually stop by a café on my way to work in the morning or during the afternoon when I need a short break. There's a small café near my office that I go to almost every day. It has warm lighting, big windows with sunlight pouring in, and the smell of freshly ground beans that fills the air. Whenever I go there, I feel like time slows down a bit. Sometimes I just go there alone to read or organize my thoughts, but most of the time, I meet my friends or coworkers there to catch up. For me, going to a café isn't just about caffeine or taste. It's more like a small daily ritual that helps me relax, recharge, and stay connected — both with myself and with others.",
+       expressions:["time slows down a bit (시간이 잠시 멈춘 듯하다)","a little ritual (일상적인 의식)"]},
+      {type:"인물 설명",q:"Tell me about a person you often go to coffee shops with. Who is this person? What do you usually talk about?",
+       script:"One of my closest friends is Bitna, whom I met in graduate school. We've known each other for about fifteen years now, and even back then, we used to grab coffee almost every day after class and talk for hours. Those coffee breaks were a big part of our friendship. Now we both work at different companies, but we still try to meet a few times a year to catch up on life. Whenever we meet, we always choose a nice coffee shop where we can relax and chat without rushing. We don't necessarily share the same taste in coffee, but we both love the cozy atmosphere of cafés — and, more importantly, we both have a weakness for desserts. Because we're both quite busy, we usually set a date a month in advance and spend time browsing the internet to find new cafés to visit. Meeting Bitna at a café always feels special to me — it's our way of slowing down, reconnecting, and enjoying a sweet little break from our everyday lives.",
+       expressions:["have a weakness for desserts (디저트를 매우 좋아하다)","a sweet little break (달콤한 작은 휴식)"]},
+      {type:"장소 설명",q:"Tell me about your favorite coffee shop. Where is it located? What does it look like? Describe it in as much detail as possible.",
+       script:"There's a coffee shop called Crème Doro near my office, and it's definitely my favorite place to go after lunch. It's located right on the café street in front of our company, so my team and I go there almost every day after we eat together. It has a warm and cozy atmosphere with big windows that let in plenty of sunlight. The interior is quite spacious — there are three large tables that seat eight people and about five smaller ones for four. My favorite spot is the standing bar right next to the entrance. When I stand there with my coffee, the sunlight coming through the window feels so warm and relaxing that it almost makes me sleepy. Inside the café, there's a kiosk next to the counter, which helps us order quickly, especially during busy lunch hours. The counter itself is long and clean, with espresso machines lined up neatly and the kitchen area behind it. At the back of the kitchen, there's an oven where they bake their famous egg tarts — they're freshly made and smell amazing. That's actually one of the main reasons we keep going back.",
+       expressions:["lined up neatly (가지런히 줄지어 있다)","a short but peaceful break (짧지만 평화로운 휴식)"]},
+      {type:"비교하기",q:"Compare a franchise coffee shop and a local coffee shop you often visit. How are they different? Which one do you prefer and why?",
+       script:"I often go to both franchise coffee shops and local cafés. For franchises, I usually go to Starbucks because it's incredibly convenient. You can find one pretty much anywhere, and the quality is always the same. When I drive to work, I often stop by the drive-thru to grab my coffee without getting out of the car. It's super convenient, especially in the morning when I'm in a hurry. But local cafés like Crème Doro are completely different. The atmosphere is warmer and cozier, and their coffee tastes much richer. Their egg tarts are amazing — much better than anything I've had at Starbucks. Once you find a really good local café, it's worth going back again and again. So, while Starbucks is my safe choice when I need something quick and reliable, Crème Doro is where I go when I want to slow down and truly enjoy my coffee. If I had to choose, I'd say Crème Doro wins — for its flavor, its atmosphere, and that unforgettable egg tart.",
+       expressions:["safe choice (실패하지 않는 선택)","worth going back again and again (계속 다시 찾게 될 만큼 가치 있다)"]},
+      {type:"기억에 남는 경험",q:"Tell me about a memorable experience you had at a coffee shop. What happened? What made it so memorable?",
+       script:"One of the most memorable experiences I've ever had at a coffee shop was when I met my old friend Bitna after a long time. It happened about a year ago at a local café called Crème Doro. We hadn't seen each other for almost two years, so we finally decided to meet there and catch up. That afternoon, the café was warm and quiet, filled with the smell of freshly brewed coffee. We sat by the window, ordered iced lattes and egg tarts, and talked for hours about everything — our families, work, and all the small things that had changed in our lives. Time flew by so quickly that we didn't even realize how late it was getting. By the time we looked around, the café was almost empty. One by one, people had left, and finally, a staff member came over and politely told us they were closing soon. We were a bit embarrassed but laughed about it. What made that experience so memorable wasn't just the place or the coffee, but the feeling of reconnecting after such a long time.",
+       expressions:["one by one (하나둘씩)","reconnect after such a long time (오랜만에 다시 이어지다)"]},
+      {type:"문제 해결",q:"Tell me about a problem you have experienced at a coffee shop. What happened, and how did you deal with it?",
+       script:"A few months ago, I had a small problem at a coffee shop near my office. I ordered my usual iced latte using the kiosk, but when I got my drink, I realized it was hot instead of iced. It wasn't a big deal, but I was a bit disappointed because I always drink iced coffee, even in winter. At first, I thought maybe I had pressed the wrong button on the screen, but when I checked my order history on the receipt, it clearly said 'iced latte.' So I went to the counter and politely explained the situation to the barista. She immediately apologized and offered to make me a new one. I waited for a few minutes, and she even added a free cookie as a small apology, which was really nice of her. I remember leaving the café feeling happy and impressed by how kind the staff was. Mistakes happen, but the way they handled it made a big difference. Since then, I've become one of their regular customers.",
+       expressions:["order history on the receipt (영수증에 표시된 주문 내역)","made a big difference (큰 차이를 만들었다)"]}
+     ],
+     roleplay:[
+      {type:"전화로 질문하기",q:"Pretend that a friend has invited you to a party, but you don't have any information about it. Call your friend and ask three or four questions to get details.",
+       script:"Hi, it's me! I just got your message about the party — thanks for inviting me! I'm really excited, but I actually don't know much about it yet. First of all, when exactly is the party? Is it this weekend or sometime next week? And where are you planning to have it? At your house, or somewhere else? Also, what time should I come? I just want to make sure I don't show up too early or too late. Oh, and is there anything I should bring — like food, drinks, or maybe a small gift? That's pretty much it! I can't wait to see everyone there. Let me know the details when you have a moment — thanks again for the invite!",
+       expressions:["show up too early or too late (너무 일찍/늦게 도착하다)","Let me know the details when you have a moment (시간 될 때 자세히 알려줘)"]},
+      {type:"예매/약속하기",q:"You would like to meet up with a friend. Call your friend and figure out the details.",
+       script:"Hey, Bitna! It's been such a long time. I've been meaning to call you — how have you been? I was wondering if you'd like to hang out this weekend. It feels like forever since we last met, and I'd love to catch up. We usually just go to a café near your place, but I was thinking we could try something different this time. How about checking out that new brunch café downtown? I heard the desserts there are amazing and the atmosphere's really nice. Either Saturday or Sunday works for me — which day is better for you? And what time would you prefer to meet, morning or afternoon? Oh, and should we invite anyone else, or just the two of us this time? Great! Then let's meet Saturday at 11 a.m. at the café entrance. I'll get there a little early and grab us a table. Can't wait to see you!",
+       expressions:["catch up (오랜만에 만나서 근황을 나누다)","grab us a table (우리 자리를 미리 잡아두다)"]}
+     ]
+    },
+    {id:"cooking",name:"요리하기",emoji:"🍳",
+     general:[
+      {type:"자기소개",q:"Do you like cooking? How often do you cook at home?",
+       script:"I wouldn't say I'm a great cook, but I really enjoy being part of the cooking process at home. In my family, my husband is the main chef because he genuinely loves cooking. I usually play the role of his assistant — I wash vegetables, prepare ingredients, and take care of the cleanup after meals. It's become a nice little routine for us. We usually cook at home almost every day. My husband enjoys trying out new dishes, like Korean stews or even homemade pizza, and I help him with whatever he needs. On weekends, our two boys also join in, and it turns into a fun family activity. The kitchen gets lively with laughter and the smell of food filling the house. Even though I don't cook as much myself, I think cooking is one of the most important parts of our family life. It's not just about making food — it's about teamwork, love, and spending time together.",
+       expressions:["play the role of (~의 역할을 하다)","try out new dishes (새로운 요리를 시도하다)"]},
+      {type:"인물 설명",q:"Tell me about someone in your family who is good at cooking.",
+       script:"The best cook in my family is definitely my husband. He's really good at making both Korean and Western dishes, and cooking has become one of his favorite hobbies. He can make a variety of dishes — from spicy stir-fried pork to doenjang stew. Sometimes, he even makes pizza dough from scratch and bakes pizzas with our two boys. He's not just good at following recipes; he's creative and likes to try new flavors. Whenever he cooks, the whole house smells amazing, and everyone gets excited for dinner. While he's cooking, I usually help him by washing vegetables, cleaning the counter, and setting the table. We've worked out a perfect system where he focuses on cooking and I take care of the cleanup. Honestly, I think we make a great team in the kitchen.",
+       expressions:["from scratch (처음부터 직접)","work out a system (체계를 만들어내다)"]},
+      {type:"장소 설명",q:"Describe your kitchen. What does it look like, and what do you like about it?",
+       script:"My kitchen is quite spacious, and it's actually my favorite place in our home. It's an open kitchen that's connected to the living room. While the living room faces south, the kitchen faces north, so it gets soft, indirect light during the day. I love the calm and cozy atmosphere it creates. At the center of the kitchen, there's a large two-meter dining table that can seat up to ten people. Right next to it, there's a big island that's just as large as the table. The island has a small sink and a built-in dishwasher, which makes cooking and cleaning much easier. On one side, we have a set of refrigerators — a large one for daily use, a smaller one for drinks, a kimchi refrigerator, and even a wine fridge. On the opposite side, there's a pantry where we keep dry food and ingredients. What I love most about this kitchen is how organized and functional it is. Everything has its own place, and it's designed perfectly for our cooking routine.",
+       expressions:["built-in dishwasher (내장형 식기세척기)","indirect light (간접적인 자연광)"]},
+      {type:"비교하기",q:"Compare eating at home and eating out. Which do you prefer, and why?",
+       script:"I enjoy both eating out and eating at home, but if I had to choose, I'd say I prefer eating at home. It's not only more comfortable but also more meaningful for my family. We can eat together, talk freely, and enjoy food that my husband cooks with care and love. Eating out is fun, of course. We sometimes go to restaurants to try new dishes or celebrate special occasions. But honestly, eating out too often can be expensive and sometimes not as healthy as home-cooked meals. At home, we can control everything — the ingredients, the taste, and even the mood. Thanks to our dishwasher, cleanup is no longer stressful, so we can focus on enjoying our time together. To me, eating at home isn't just about food — it's about connection. That's why, no matter how good a restaurant meal might be, nothing beats a home-cooked dinner made in our own kitchen.",
+       expressions:["nothing beats ~ (~보다 좋은 건 없다)","quality time (가족과 보내는 의미 있는 시간)"]},
+      {type:"기억에 남는 경험",q:"Tell me about a memorable cooking experience you had.",
+       script:"One of my most memorable cooking experiences was when my husband and I made homemade pizza with our two sons. It was during the weekend, and my husband decided to make the dough from scratch. The boys were so excited that they put on little aprons and helped us from start to finish. First, we mixed flour, water, and yeast to make the dough. My husband showed the boys how to knead it, and they had so much fun playing with the dough like it was clay. After letting it rise, we rolled it out and added tomato sauce, cheese, and all kinds of toppings — pepperoni, mushrooms, and even some pineapple because the kids love it. While the pizza was baking, the smell filled the entire house. Everyone waited in front of the oven, and when it was finally ready, we couldn't wait to taste it. It was so delicious — the crust was crispy on the outside and soft inside. The boys kept saying, 'Dad, this is the best pizza ever!'",
+       expressions:["knead the dough (반죽을 치대다)","crispy on the outside, soft inside (겉은 바삭하고 속은 부드럽다)"]},
+      {type:"문제 해결",q:"Have you ever had any trouble while cooking? How did you solve it?",
+       script:"Yes, I've definitely had my share of cooking troubles — especially with my pressure cooker. One time, I was making braised short ribs, or galbijjim, and I added too many ingredients into the pot. When the pressure built up, the soup started leaking out through the valve. The broth splashed all over the countertop and even dripped down to the kitchen floor. It was so greasy that the floor stayed slippery for days, even after I cleaned it several times. Another time, I made the same dish but cooked it for too long. The meat turned out extremely soft — which was nice — but the bones became so fragile that they started breaking apart. My sons were shocked and said, 'Mom, the bones are falling apart!' I couldn't help but laugh. As the saying goes, 'Failure is the mother of success.' Now I know exactly how much to put in and how long to cook.",
+       expressions:["mushy (너무 물러진)","Failure is the mother of success (실패는 성공의 어머니)"]}
+     ],
+     roleplay:[]
+    },
+    {id:"golf",name:"골프",emoji:"⛳",
+     general:[
+      {type:"자기소개",q:"Please introduce yourself and tell me what kind of sports or travel you enjoy.",
+       script:"Hi, my name is Minjung, and I work as a UX designer at Samsung. I lead a design group that creates user experiences for a smart home app called SmartThings. My job is pretty creative but also quite intense, so I try to keep a good balance between work and personal life. That's why I spend my free time doing something that refreshes me — playing golf and traveling. I started playing golf a couple of years ago, and it quickly became one of my favorite hobbies. What I love about golf is that it's not just a sport — it's also a way to enjoy nature and clear my mind. I usually play with my husband and some close friends from church, and we often travel together for golf trips. Last summer, we even went to Hokkaido, Japan, which was such a memorable experience. I'd say golf and travel are the perfect combination for me. They help me relax, stay active, and connect with people I care about.",
+       expressions:["keep a good balance between work and personal life (일과 삶의 균형을 유지하다)","take on new challenges (새로운 도전을 받아들이다)"]},
+      {type:"인물 설명",q:"Tell me about someone you usually play golf or travel with.",
+       script:"The person I usually play golf and travel with is my husband. We've been married for more than ten years, and we share many hobbies, but golf is definitely our favorite one. We started playing together a couple of years ago, and since then, it's become one of the main ways we spend quality time together. He's the kind of person who is calm, patient, and very organized — which is exactly what you need when playing golf. He always helps me with my swing, gives me little tips, and never gets upset even when I hit the ball the wrong way. When we travel, he's also the one who drives and plans our routes, so I can just sit back and enjoy the scenery. Whether we're playing golf in Japan or just going for a weekend round near Seoul, he always keeps things light-hearted. I feel really lucky to have someone who shares my interests and makes every experience more enjoyable.",
+       expressions:["spend quality time together (의미 있는 시간을 함께 보내다)","light-hearted (가볍고 즐거운)"]},
+      {type:"장소 설명",q:"Describe your favorite golf course or a place you enjoyed visiting during your golf trip.",
+       script:"One of my favorite places I've ever been to is a golf course in Hokkaido, Japan. I visited there last summer with my husband and two close couples from our church, and the place was just breathtaking. The weather was cool and refreshing, the air was clean, and the scenery looked like a painting — wide green fields surrounded by gentle hills and blue skies. What made the experience even better was the atmosphere of the course itself. It was so quiet and peaceful that we could hear nothing but the sound of birds and our golf swings. The course was also very well designed, with smooth fairways and beautiful views on every hole. On top of that, the price was incredibly reasonable — only about 40,000 won per person, which is about the same as one person's round in Korea, even though six of us played together!",
+       expressions:["breathtaking (숨이 멎을 만큼 아름다운)","fairway (골프의 페어웨이)"]},
+      {type:"비교하기",q:"Compare playing golf in Korea and playing golf abroad.",
+       script:"I've played golf both in Korea and abroad, and there are clear differences between the two. In Korea, golf is quite expensive, but it's very easy to play because most courses are nearby. You can finish a round in just half a day, which is great for spontaneous plans. On the other hand, playing golf abroad is the complete opposite. The green fees are much cheaper — when I went to Hokkaido, Japan, it was only about 40,000 won per person, even though six of us played together. But since it involves flights and travel time, you usually have to take a few days off. That means you end up going with your family or close friends, which makes it feel more like a real vacation. So, I'd say Korean golf is all about convenience, while overseas golf is about experience. Both have their own charm, but I personally love the relaxing and special vibe of golfing abroad.",
+       expressions:["spontaneous plans (즉흥적인 계획)","fit into your schedule (일정 안에 맞추다)"]},
+      {type:"기억에 남는 경험",q:"Tell me about a memorable experience you had while traveling abroad to play golf.",
+       script:"One of my most memorable experiences was a golf trip to Hokkaido, Japan, that I took with my husband and two close couples from our church. We've been studying the Bible together for over ten years, so we've become more like family than friends. Last summer, we decided to spend four days playing golf and relaxing together in Japan. As soon as we arrived, we went straight from the airport to the golf course. The weather was beautiful, the air was fresh, and the scenery was breathtaking — exactly what I needed after months of hard work. But the most unforgettable moment happened on the second day. While we were busy focusing on our shots, a big black crow suddenly flew down and snatched a snack from our golf cart! We were all shocked and burst into laughter. Later, we realized the cart had a lid for storing food — apparently, it was there to protect it from crows! It was such a funny and unexpected moment that made the whole trip even more special.",
+       expressions:["snatch a snack (간식을 낚아채다)","burst into laughter (웃음을 터뜨리다)"]},
+      {type:"문제 해결",q:"Tell me about a problem you had during your golf trip abroad and how you solved it.",
+       script:"On the last day of our golf trip to Hokkaido, we ran into a small but unforgettable problem at the airport. During our stay, we did quite a bit of shopping — mostly at local supermarkets. We bought all kinds of souvenirs like cookies, milk products, and small gifts for our friends and family. Everything was fine until we got to the check-in counter. The airline staff told us that all three of our suitcases were over the weight limit. We were shocked! We tried everything we could to fix the situation — putting snacks and bottles into carry-on bags, stuffing lighter items into the golf bag. But no matter how much we tried, it was still over the limit. In the end, we had no choice but to pay the extra baggage fee. We couldn't help but laugh about it afterward — we had bought everything at low prices in Japan, but the overweight charge made it all expensive again!",
+       expressions:["had no choice but to pay (어쩔 수 없이 돈을 내야 했다)","overweight charge (초과 수하물 요금)"]}
+     ],
+     roleplay:[]
+    },
+    {id:"domestic_travel",name:"국내여행",emoji:"🗺️",
+     general:[
+      {type:"자기소개",q:"Please introduce yourself and tell me what kind of domestic travel you enjoy.",
+       script:"Hi, my name is Minjung, and I work for Samsung Electronics. One of our employee benefits is a resort partnership program that allows us to book vacation spots at discounted prices. That's how I first discovered Seolhaeone Resort in Yangyang, Gangwon-do. Since then, my family and I have been visiting Yangyang quite often. It's become our go-to place whenever we need a short break from work and city life. My job can be quite demanding at times, so going to the beach and spending time in nature really helps me clear my mind and recharge.",
+       expressions:["go-to place (자주 가는 단골 장소)","recharge (재충전하다)"]},
+      {type:"장소 설명",q:"Describe a beach club or restaurant you visited during a domestic trip.",
+       script:"One of my favorite places in Yangyang is a small beach club that serves hamburgers right by the ocean. The restaurant was literally built above the sand, so from our table, we could look straight out at the waves. The place had a very cozy and relaxing atmosphere. It wasn't crowded at all — that evening we were the only customers there. The music was soft, the lights were warm, and the sea breeze came right through the open windows. We ordered burgers and fries, and while my husband and I sat under a blanket, our two sons ran out to play on the beach. What I loved most about that place was how simple yet perfect it felt. There was nothing fancy — just good food, the sound of the waves, and the people I love.",
+       expressions:["cozy and relaxing atmosphere (아늑하고 편안한 분위기)","nothing fancy (특별할 건 없지만 정감 있는)"]},
+      {type:"비교하기",q:"Some people say traveling domestically is boring compared to going abroad. What do you think?",
+       script:"I understand why some people might think domestic travel is boring — it's close, familiar, and doesn't always feel as exciting as going abroad. But for me, it's actually the opposite. Domestic trips, especially to places like Yangyang, are the perfect way to relax and recharge without the stress of long flights or complicated plans. When my family goes to the beach in Gangwon-do, we can just pack our things, get in the car, and arrive in a few hours. We walk along the beach, eat fresh seafood, and spend quiet evenings watching the waves together. Even though it's close to home, it always feels new and refreshing because every season brings a slightly different mood and scenery. You don't need to go far to feel rested or inspired — sometimes, the best memories are made just a few hours away from home.",
+       expressions:["recharge without the stress (스트레스 없이 재충전하다)","every season brings a slightly different mood (계절마다 조금씩 다른 분위기)"]},
+      {type:"습관/경향",q:"Tell me how often you go on domestic trips, and what your usual routine is.",
+       script:"My family and I usually go on domestic trips once or twice a year, and most of the time, we choose to visit the beach. Every summer, we drive to Yangyang to spend a few relaxing days together. We usually leave early in the morning to avoid traffic and arrive around lunchtime. The kids love playing in the sand or collecting seashells, while my husband and I sit on the terrace of a café, watching them and enjoying an iced coffee. In the evening, we go out for seafood — grilled clams or sashimi — which has become a must-do for us. Before going back to our hotel, we always take a short walk along the shore to watch the waves under the night sky.",
+       expressions:["collecting seashells (조개껍질을 줍다)","must-do (꼭 해야 하는 일)"]},
+      {type:"기억에 남는 경험",q:"Tell me about a memorable experience you had during a domestic trip.",
+       script:"One of the most memorable experiences I've had during a domestic trip was when my family and I visited Yangyang Beach in late autumn. After spending the day walking along the coast, we found a small hamburger restaurant built right above the sand. It was already getting dark, and the place was completely empty — no music, no people, just the sound of the waves and the cool sea breeze. We sat at a table that looked directly out over the beach, wrapped ourselves in blankets, and ordered some burgers and fries. Our two sons ran out to play on the sand while my husband and I watched them from the table. The air was chilly, but the atmosphere was so calm and peaceful that it felt like time had slowed down. Just our family, the sea, and the quiet sound of the waves. It reminded me how beautiful simple moments can be.",
+       expressions:["the air was chilly (공기가 쌀쌀했다)","time had slowed down (시간이 느리게 흐르는 것 같았다)"]},
+      {type:"시작한 계기/변화",q:"Tell me how you started traveling to Yangyang and how it has changed over time.",
+       script:"I first started going to Yangyang a few years ago because of my company's resort benefit program. One day, while browsing the company's resort website, I came across a beautiful place called Seolhaeone Resort. It looked modern and peaceful, and the price was surprisingly reasonable, so I booked it right away. That first trip turned out to be amazing. Our villa had two floors — the first floor had a spacious living room and kitchen, and the second floor had two bedrooms and two bathrooms. The following year, we decided to invite my parents to join us. Even with two families staying together, the space was more than enough. Over time, what started as a simple company discount trip became one of our favorite family traditions. Every time we go, we enjoy the calm atmosphere, eat fresh seafood, and take evening walks by the beach.",
+       expressions:["came across (우연히 발견하다)","meaningful tradition (의미 있는 가족 전통)"]}
+     ],
+     roleplay:[
+      {type:"예매/약속하기",q:"You want to have a birthday party at a restaurant. Call the restaurant and make a reservation.",
+       script:"Hello, this is Minjung. I'd like to get some information about making a reservation for my son's birthday party next Saturday. We're planning to have about twelve people — four adults and eight kids — and the party would take place from 12 p.m. to 4 p.m. I actually visited your restaurant once before for a friend's party, and I remember there was a private party room in the corner. I was wondering if that room is available on that day. Also, do you have any special menus or birthday packages for children? And lastly, do you allow decorations or bringing in a birthday cake from outside? Okay, that sounds great. So, if the party room is available and we can bring our own cake, I'd like to go ahead and make a reservation. Please put it under my name. Thank you so much for your help — my son's really looking forward to it!",
+       expressions:["go ahead and make a reservation (바로 예약을 진행하다)","bring our own cake (케이크를 직접 가져오다)"]}
+     ]
+    },
+    {id:"overseas_travel",name:"해외여행",emoji:"✈️",
+     general:[
+      {type:"자기소개",q:"Please introduce yourself and tell me about your overseas travel experiences.",
+       script:"Hi, my name is Minjung, and I work as a UX designer at Samsung. I lead a design group for SmartThings. My job is quite intense, so I try to keep a good balance between work and personal life. One of my favorite ways to unwind is combining golf and overseas travel. Last summer, I went to Hokkaido, Japan, with my husband and two close couples from our church. We've been studying the Bible together for over ten years, so we're more like family than friends. It was the perfect combination of friendship, nature, and my favorite sport — playing golf in a foreign country, eating delicious local food, and exploring new places together. Whenever I come back from a trip like that, I feel completely recharged and ready to take on new challenges at work.",
+       expressions:["keep a good balance between work and personal life (일과 삶의 균형을 유지하다)","take on new challenges (새로운 도전)"]},
+      {type:"장소 설명",q:"Describe your favorite place you visited during an overseas trip.",
+       script:"One of my favorite places I've ever been to is a golf course in Hokkaido, Japan. I visited there last summer with my husband and two close couples from our church. The weather was cool and refreshing, the air was clean, and the scenery looked like a painting — wide green fields surrounded by gentle hills and blue skies. It was so quiet and peaceful that we could hear nothing but the sound of birds and our golf swings. The course was also very well designed, with smooth fairways and beautiful views on every hole. The price was incredibly reasonable — only about 40,000 won per person, which is about the same as one person's round in Korea, even though six of us played together! That's why Hokkaido became one of my favorite travel destinations.",
+       expressions:["breathtaking (숨이 멎을 만큼 아름다운)","peaceful and balanced (평화롭고 균형 잡힌)"]},
+      {type:"비교하기",q:"Compare playing golf in Korea and playing golf abroad.",
+       script:"I've played golf both in Korea and abroad. In Korea, golf is quite expensive, but it's very easy to play because most courses are nearby. You can finish a round in just half a day, which is great for spontaneous plans. On the other hand, playing golf abroad is the complete opposite. The green fees are much cheaper — only about 40,000 won per person in Hokkaido. But since it involves flights and travel time, you usually have to take a few days off and go with family or close friends, which makes it feel more like a real vacation. So, I'd say Korean golf is all about convenience, while overseas golf is about experience and connection. Both have their own charm, but I personally love the relaxing and special vibe of golfing abroad.",
+       expressions:["spontaneous plans (즉흥적인 계획)","fit into your schedule (일정 안에 맞추다)"]},
+      {type:"습관/경향",q:"Tell me about your overseas golf travel habits. When and how often do you travel?",
+       script:"I usually play golf once or twice a month, mostly on weekends with my husband and friends from church. When it comes to golf trips abroad, we try to go once a year. Last summer, we went to Hokkaido, Japan, for a four-day trip. Our routine there was simple but perfect. We woke up early, had coffee and a small slice of cheesecake made with fresh Hokkaido milk, and then headed to the golf course. My husband usually drove, and we enjoyed the quiet drive through the beautiful countryside. After finishing a round, we always spent some time exploring the nearby town — sometimes shopping for souvenirs or trying local food. In the evening, we had dinner together, often with some sake. That kind of routine made the whole trip peaceful, balanced, and really memorable.",
+       expressions:["explore the nearby town (근처 시내를 둘러보다)","peaceful and balanced (평화롭고 균형 잡힌)"]},
+      {type:"기억에 남는 경험",q:"Tell me about a memorable experience you had while traveling abroad.",
+       script:"One of my most memorable experiences was a golf trip to Hokkaido, Japan, with my husband and two close couples from our church. As soon as we arrived, we went straight from the airport to the golf course. The weather was beautiful, the air was fresh, and the scenery was breathtaking. But the most unforgettable moment happened on the second day. While we were busy focusing on our shots, a big black crow suddenly flew down and snatched a snack from our golf cart! We were all shocked and burst into laughter. Later, we realized the cart had a lid for storing food — apparently, it was there to protect it from crows! It was such a funny and unexpected moment that made the whole trip even more special. Looking back, that golf trip reminded me that the best memories often come from little surprises.",
+       expressions:["snatch a snack (간식을 낚아채다)","burst into laughter (웃음을 터뜨리다)"]},
+      {type:"문제 해결",q:"Tell me about a problem you had during your overseas trip and how you solved it.",
+       script:"On the last day of our golf trip to Hokkaido, we ran into a small but unforgettable problem at the airport. We had done quite a bit of shopping at local supermarkets — cookies, milk products, and small gifts for friends and family. Everything was fine until we got to the check-in counter. The airline staff told us that all three of our suitcases were over the weight limit. We tried everything we could — putting snacks and bottles into carry-on bags, stuffing lighter items into the golf bag. But no matter how much we tried, it was still over the limit. In the end, we had no choice but to pay the extra baggage fee. We couldn't help but laugh about it afterward — we had bought everything at low prices in Japan, but the overweight charge made it all expensive again! That little mistake made us laugh every time we talk about our Hokkaido trip.",
+       expressions:["had no choice but to pay (어쩔 수 없이 돈을 내야 했다)","overweight charge (초과 수하물 요금)"]}
+     ],
+     roleplay:[
+      {type:"전화로 질문하기",q:"You are planning an upcoming stay at a hotel. Call the manager and ask three or four questions about the reservation.",
+       script:"Hello, this is Minjung. I'm planning a family trip to Jeju Island next month, and I'd like to make a reservation at your hotel. Before I book, I have a few questions. First, do you have any family suites or private villas available during the weekend of June 15th? We'll have six adults and four children, so we'll need something quite spacious. Second, I'd like to know if the rooms have kitchens or cooking facilities, since we prefer to prepare some meals on our own. Also, do you offer any breakfast or dinner packages for guests staying in villas? And one last thing — is there a pool or kids' play area inside the resort? Okay, that sounds great. If the family villa is available and breakfast is included, I'd like to go ahead and make a reservation for three nights starting on June 15th. Please put it under my name. Thank you so much!",
+       expressions:["go ahead and make a reservation (바로 예약을 진행하다)","cooking facilities (취사가 가능한 시설)"]}
+     ]
+    },
+    {id:"staycation",name:"집에서 보내는 휴가",emoji:"🏡",
+     general:[
+      {type:"자기소개",q:"Please introduce yourself and tell me what you usually do during your vacations at home.",
+       script:"Hi, my name is Minjung, and I live with my husband and two sons, who are twelve and nine years old. We're a close family, and we enjoy spending time together, especially on weekends or holidays. We live in a spacious apartment that's about 53 pyeong, and each of us has our own room, so it feels both comfortable and private. What's special about me is that I work as a UX designer at Samsung. I'm part of the team that designs SmartThings, a smart home app that connects and controls home appliances. Because I work in this field, our home is fully set up with IoT devices. I can control the lighting, air conditioner, and even the curtains right from my phone. That's one of the reasons why my family loves spending our vacations at home. We often watch movies together in our media room with a projector, or the kids play Nintendo while I watch Netflix on my tablet. For us, staying home during vacation isn't boring at all — it's the most comfortable and relaxing way to recharge as a family.",
+       expressions:["set up with IoT devices (IoT 기기로 꾸며져 있다)","random things (이런저런 이야기들)"]},
+      {type:"장소 설명",q:"Can you describe what your home is like when you spend your vacation there?",
+       script:"When it comes to spending my staycation, my home itself feels like a luxury resort. I live in a spacious apartment that's about 53 pyeong, which is considered quite large in Korea. The living room and kitchen are both open and airy, and each bedroom has its own bathroom, which makes life really comfortable and private for each family member. The living room has a low sofa that gives off a hotel lounge vibe, and one of the rooms has a projector installed, so it feels like having a private movie theater at home. All the windows facing south have blackout curtains that can be controlled by a remote. Since I work as a UX designer for SmartThings at Samsung, my home is filled with IoT appliances. I can control the air conditioning, heating, and even the TV channels right from my smartphone. Because everything is so well-equipped and convenient, my family actually prefers staying home to going on vacation.",
+       expressions:["luxury resort (고급 리조트)","hotel lounge vibe (호텔 라운지 같은 분위기)"]},
+      {type:"비교하기",q:"Compare spending your vacation at home with traveling somewhere else.",
+       script:"When I think about spending my vacation, I can either stay at home or travel somewhere else. Both have their own charm. Traveling is exciting and refreshing because I get to see new places, meet new people, and try local food. However, it usually takes a lot of time, money, and planning, which can be a bit stressful. On the other hand, spending my vacation at home is all about comfort and relaxation. I don't have to pack, deal with traffic, or worry about hotel reservations. The best part is that I can actually have much more time to rest, since there's no travel time involved. My family can enjoy everything we love — watching movies in our media room, playing Nintendo, or just having a quiet coffee break together. So if I had to choose, I'd say I prefer spending my vacation at home. It may not be as exciting as traveling, but it's peaceful, comfortable, and perfect for spending quality time with my family.",
+       expressions:["no travel time involved (이동 시간이 들지 않다)","recharge (재충전하다)"]},
+      {type:"습관/경향",q:"What do you usually do during your vacation at home?",
+       script:"When I spend my vacation at home, my daily routine becomes much slower and more relaxing than usual. I usually start the day by waking up late and enjoying a cup of coffee in the living room. It feels nice not to rush anywhere. Sometimes my husband cooks breakfast, and we eat together while chatting about random things. In the afternoon, everyone in my family spends time in their own way. My kids often play Nintendo games or use their tablets, while I like to lie in bed watching Netflix on mine. Our house has a media room with a projector, so when we feel like watching something together, we turn off the lights, make popcorn, and watch a movie as if we were in a theater. In the evening, we sometimes go for a walk around our apartment complex. On the way, we often stop by a convenience store to grab some drinks. Those little moments make our vacation at home even more special.",
+       expressions:["go for a walk around our apartment complex (아파트 단지를 산책하다)","grab some drinks (음료수를 사서 마시다)"]},
+      {type:"기억에 남는 경험",q:"Tell me about a memorable staycation you had recently.",
+       script:"Recently, my family had a very relaxing staycation at home during the long holiday in early October. Since it was a national holiday, we knew that the traffic would be terrible, so we decided to stay home instead of traveling. We have a small media room with a projector, and when we turn it on and fill the whole wall, it feels just like being in a private movie theater. That day, we watched an animated movie called K-pop Demon Hunters. We chose it because it had become quite popular worldwide, and we were curious. The movie wasn't really our type, but the music was so catchy that after the movie ended, we kept listening to its soundtrack for hours. My kids even tried to sing along, and it turned into a fun little family karaoke time. Even though the movie itself wasn't amazing, that day felt special. Staying home was so comfortable and stress-free.",
+       expressions:["catchy (귀에 쏙 들어오는)","stress-free (스트레스 없는)"]},
+      {type:"문제 해결",q:"Tell me about a problem you had during a staycation and how you solved it.",
+       script:"One time during a vacation at home, I had an unexpected problem with my home network. Since most of our home devices are connected to the internet, I usually enjoy watching Netflix on my tablet while lying in bed. But one day, right in the middle of my show, the screen suddenly went black. My phone couldn't connect to Wi-Fi either, and the smart lighting and air conditioner also stopped responding. After checking the router, I quickly discovered the real culprit — my younger son. He had been playing around with the sofa cushions and accidentally hit the Wi-Fi router. It had completely disconnected the cables, which explained why everything stopped working. I restarted the router and reconnected the wires, and thankfully, the internet came back right away. My peaceful Netflix time continued, and my son, of course, got a little scolding from me.",
+       expressions:["culprit (문제의 원인, 범인)","scolding (꾸중)"]}
+     ],
+     roleplay:[]
+    }
+  ],
+  sudden:[
+    {id:"housework",name:"집안일",emoji:"🧹",
+     general:[
+      {type:"습관/경향",q:"How often do you do house chores, and can you walk me through your usual cleaning routine?",
+       script:"I actually enjoy doing house chores, especially cleaning and laundry. In fact, I'd say I do about 90 percent of those tasks at home. Since I'm a working mom, it's quite hard for me to do housework during the week, so I usually take care of everything on weekends. Sunday, in particular, has become my 'cleaning day,' and I have a specific routine that I always follow. On Sunday mornings, I get up early and start with laundry because it takes the most time. I usually run three separate loads — whites, darks, and colorful clothes — so I have to start early to finish them all by the afternoon. While the washing machine is running, I put the dishes into the dishwasher and let it handle them automatically. Then I move on to cleaning the house. I put all the chairs on the table, move the curtains up, and make sure the floor is completely clear. Once everything is organized, I turn on the robot vacuum cleaner. While it's cleaning, my family and I go to church. By the time we come back, the cleaning, laundry, and dishes are all done. It's such an efficient and stress-free system.",
+       expressions:["run three separate loads (세 번의 세탁기를 돌리다)","stress-free system (스트레스 없는 효율적인 방식)"]},
+      {type:"기억에 남는 경험",q:"Tell me about a memorable experience you had while doing house chores.",
+       script:"One of the most unforgettable housework experiences I've ever had happened in the kitchen while I was making galbijjim with my pressure cooker. At first, I was pretty confident, but that confidence didn't last long. I must have put too many ingredients inside, because halfway through, I heard a strange hissing sound. Then, to my horror, the broth started shooting out from the valve like a fountain. The sauce splattered everywhere — on the counter, the cabinets, and even the floor. The smell of soy sauce filled the whole kitchen, and the floor got so greasy that I kept slipping every time I walked in for days. A few weeks later, I gave it another try, but I overcooked it. The meat was so soft, but the bones completely fell apart. My sons said, 'Mom, the bones are gone!' I couldn't help laughing, even though part of me wanted to cry. Now I know exactly how to handle the pressure cooker without turning my kitchen into a disaster zone.",
+       expressions:["disaster zone (재난 현장)","lesson learned (얻은 교훈)"]},
+      {type:"문제 해결",q:"When you were a child, what kind of house chores did you do? Tell me about a problem you had.",
+       script:"When I was little, my mom rarely asked me to do house chores. She wanted me to focus on studying and just being a kid. So, honestly, I didn't know much about cleaning at all — until one unforgettable day. One afternoon, I drew a huge picture on the wall in the hallway with crayons. I covered the whole wall with blue waves and a giant whale. I thought it looked amazing. But when my mom came home and saw it, she told me I had to clean it up all by myself. I panicked. I had no idea where to start, so I grabbed an eraser and began scrubbing the wall as hard as I could. It took ages, and my arms felt like jelly, but eventually, I managed to get most of it off. The wall looked a little patchy, but at least it wasn't covered in blue anymore. That day taught me a lesson I'll never forget — cleaning up after yourself is no joke.",
+       expressions:["scrub the wall (벽을 문질러 닦다)","learn responsibility (책임감을 배우다)"]}
+     ],
+     roleplay:[]
+    },
+    {id:"dining_out",name:"외식/음식",emoji:"🍽️",
+     general:[
+      {type:"장소 설명",q:"I would like to know about a restaurant you often visit. What kind of dishes does it serve? What is the restaurant like?",
+       script:"One of the most memorable restaurants I've been to recently is a small beach club in Yangyang that serves hamburgers right by the ocean. I visited it with my family last autumn during our trip to Gangwon-do. It wasn't a fancy place, but it had such a unique and peaceful atmosphere that I still remember it vividly. The restaurant was literally built above the sand, so from our table, we could look straight out at the waves. When we arrived, the sun was starting to set, and the sky was turning pink and orange. It was quiet — no crowd, no loud music — just the sound of the waves and the cool evening breeze. We sat outside under warm lights, wrapped ourselves in blankets, and ordered burgers and fries. The food was simple but delicious, and everything tasted even better because of the view. What I loved most about that place was its peaceful mood. It wasn't about fancy dishes — it was about enjoying a meal in the most relaxing setting.",
+       expressions:["vividly (생생하게)","the atmosphere that surrounds you (당신을 감싸는 분위기)"]},
+      {type:"사물 설명",q:"Tell me about the most famous dish of your country. What are the main ingredients in it? What is special about it?",
+       script:"One of the most famous traditional dishes in Korea is Galbijjim, or braised short ribs. It's a rich and flavorful dish made with beef ribs simmered in a sweet and savory soy-based sauce. The main ingredients include beef short ribs, soy sauce, sugar, garlic, onions, and a bit of sesame oil and black pepper. The meat is cooked for a long time until it becomes tender and juicy, and the sauce has a deep, slightly sweet taste that makes it truly special. Traditionally, Galbijjim takes quite a lot of time to prepare. But these days, I often make it using a pressure cooker, which saves a lot of time. The meat becomes incredibly soft in less than half the usual cooking time, and the flavor still comes out just as rich. It's one of those dishes that make your whole kitchen smell amazing. Unfortunately, eating Galbijjim at a restaurant has become quite expensive lately, so making it at home feels even more rewarding.",
+       expressions:["high-end Korean restaurants (고급 한식당)","rewarding (보람 있는)"]},
+      {type:"기억에 남는 경험",q:"Have you ever had a special experience at a restaurant? Tell me about it in detail.",
+       script:"One of the most memorable dining experiences I've had was at a small beach club in Yangyang that serves hamburgers right by the ocean. My family and I went there during our autumn trip to Gangwon-do. The restaurant was literally built above the sand, and from our table, we could see the waves just a few meters away. It was getting dark, and the sky was turning pink and orange as the sun started to set. There was no crowd, no loud music — just the sound of the waves and the cool evening breeze. We sat outside under warm lights, wrapped ourselves in blankets, and ordered burgers and fries. The food itself was simple, but it tasted amazing, especially with that ocean view. My kids ran out to play on the sand while my husband and I enjoyed our meal and watched them laugh. What made that evening so memorable was its peaceful atmosphere — the feeling of being together in such a quiet, beautiful place.",
+       expressions:["the food itself was simple (음식은 단순했지만)","peaceful atmosphere (평화로운 분위기)"]}
+     ],
+     roleplay:[
+      {type:"부탁하기",q:"You would like to have dinner at a downtown restaurant tomorrow. Most tables are reserved. Call the manager and give two or three reasons why you should be given a reservation.",
+       script:"Hello, this is Minjung. I'm calling to ask about making a dinner reservation for tomorrow evening. I heard that your restaurant is fully booked and that the remaining tables are for VIP guests, but I was wondering if there's any chance you could make an exception for us. The reason I'm asking is that my younger brother and his fiancée just arrived from the United States, and we really want to spend some time together as a family. It's actually their last night in Korea before they head back home, so it would mean a lot to us if we could have dinner at your restaurant. Also, we completely understand that the VIP tables are more expensive, and we're absolutely willing to pay the extra cost. I hope you could kindly consider our situation.",
+       expressions:["make an adjustment (조정해 주다)","consider our situation (우리의 사정을 고려하다)"]}
+     ]
+    },
+    {id:"internet",name:"인터넷 서핑",emoji:"💻",
+     general:[
+      {type:"사물 설명",q:"Tell me about an AI tool or service that you usually use. What services does it offer, and what do you use it for?",
+       script:"One of the AI tools I use the most is ChatGPT. At first, I started using it for work — to search for information and get quick insights about topics I needed to understand. It's incredibly helpful when I need to brainstorm ideas, organize thoughts, or get examples for my UX design projects. But recently, ChatGPT has become much more than a work tool. It's like my personal assistant that helps me in so many areas of my daily life. For example, I've been trying to lose some weight, so I send ChatGPT pictures of my meals and my weight logs. It automatically organizes the information, gives me feedback, and even recommends what to eat or how to exercise the next day. I also use it to boost my creativity — whenever I need new ideas, ChatGPT generates tons of suggestions much faster than I could ever come up with on my own. Besides that, I sometimes use ChatGPT to reflect on my emotions. Overall, ChatGPT has become an essential part of my everyday life — not just as a tool, but as a kind of intelligent companion.",
+       expressions:["boost my creativity (나의 창의력을 향상시키다)","intelligent companion (지적인 동반자)"]},
+      {type:"비교하기",q:"What were websites like in the past? Have they changed since you first started surfing the Internet?",
+       script:"I surf the Internet every day, both for work and for personal reasons, and I've seen how much websites have changed over the years. When I first started using the Internet, websites were very simple — mostly text with a few small images. The design looked flat and outdated, and the pages took forever to load. Back then, I used the Internet mainly for sending emails or reading news. There were no video meetings or real-time messengers like we have today. Nowadays, websites are so much more visual, interactive, and user-friendly. I can attend video meetings, chat with coworkers through messengers, and access almost any kind of information instantly. Shopping websites now show product reviews, star ratings, and even price comparisons — all in one place. In my opinion, the biggest change is that modern websites are focused on user experience. The Internet has truly become a space not just for information, but for communication, connection, and creativity.",
+       expressions:["user experience (사용자 경험)","interactive and user-friendly (상호작용적이고 사용자 친화적인)"]},
+      {type:"습관/경향",q:"Where and when do you use the internet? What do you mainly use it for?",
+       script:"I use the Internet all the time, both for work and personal reasons. During the day, I use it mostly for work since I'm a UX designer. I check my emails, communicate with my team through messenger, and often attend video meetings with other departments. After work, I use the Internet for relaxation. I usually surf websites to read articles, shop on Coupang, or watch something on Netflix. Most of the time, I use my tablet or smartphone rather than my laptop because it's more convenient when I'm lying on the couch or in bed. I also use the Internet when I cook — I often look up recipes or read product reviews before buying groceries online. In short, the Internet is part of almost every part of my day. I honestly can't imagine living without it now.",
+       expressions:["rely on the Internet (인터넷에 의존하다)","look up recipes (요리법을 찾아보다)"]}
+     ],
+     roleplay:[]
+    },
+    {id:"library",name:"도서관",emoji:"📚",
+     general:[
+      {type:"장소 설명",q:"Describe the library you often visit.",
+       script:"One of my favorite places to visit is the Children's Library at Gwanggyo Lake Park. It's not a big library, but it's one of the most beautiful and creative spaces I've ever been to. The building has a warm wooden design that blends perfectly with the nature around it, and large windows let in plenty of sunlight, making the place feel bright and peaceful. Inside the library, there are low bookshelves filled with colorful picture books and comic books. There are also soft mats on the floor where children can lie down and read comfortably. My favorite part is the small tunnel-shaped reading spaces where kids can crawl inside, almost like hiding in a cozy little cave, and read quietly on their own. What I love most about this library is that it's not just for reading — it's a place where families can spend quality time together. Every time I visit, I feel calm, inspired, and grateful that such a wonderful place exists near my home.",
+       expressions:["tunnel-shaped reading space (굴 모양의 독서 공간)","feel inspired (영감을 받다)"]},
+      {type:"비교하기",q:"Compare the library you used to visit when you were young with the one you go to now.",
+       script:"When I was in college, I used to spend a lot of time in the school library. It was a very serious place where students went mainly to study or prepare for exams. The atmosphere was extremely quiet, the shelves were filled with old academic books, and I remember feeling a bit stressed whenever I went there. The library I go to now is completely different. These days, I often visit the Children's Library at Gwanggyo Lake Park with my two sons. It has a warm, wooden interior, colorful picture books, and cozy reading corners where kids can lie down on soft mats or crawl into small tunnel-shaped spaces. Instead of being quiet and serious, the library feels full of life and creativity. Parents and children read together and enjoy a calm but cheerful atmosphere. I think the biggest difference is the purpose. The university library was a place for studying, while the Children's Library is a place for connection and enjoyment. Now, going to the library doesn't feel like an obligation — it feels like quality family time.",
+       expressions:["user-friendly (사용하기 편리한)","obligation (의무, 부담감 있는 일)"]},
+      {type:"기억에 남는 경험",q:"Tell me about a memorable experience you had at the library.",
+       script:"One of my most memorable experiences at a library happened at the Children's Library in Gwanggyo Lake Park. It was a warm spring weekend, and my family decided to spend the afternoon there after having a picnic by the lake. When we entered, the sunlight was gently coming through the big windows, and the whole place smelled like books and wood. My sons quickly picked their favorite picture books and lay down on the soft mats, completely absorbed in their stories. I sat nearby, reading my own book and sipping on a cup of coffee. For a moment, everything felt peaceful — no noise, no rush, just quiet happiness. What made that day special was how calm and connected we all felt. Even now, whenever I think about that day, I can still picture my boys' faces as they were lost in their books. It was one of the most heartwarming family moments I've ever had.",
+       expressions:["absorbed in (…에 몰입한)","heartwarming (따뜻한, 마음이 훈훈한)"]}
+     ],
+     roleplay:[]
+    },
+    {id:"furniture",name:"가구/가전",emoji:"🛋️",
+     general:[
+      {type:"사물 설명 (가구)",q:"Describe a piece of furniture that you really like.",
+       script:"My favorite piece of furniture is our modular sofa. We bought it about four years ago when we moved into our new apartment. Our living room is quite spacious, and this sofa makes it feel like a hotel lounge. It has a very clean, minimal design — the seats are square-shaped, and the backrest is quite low. The legs are made of metal, lifting the seat about twenty centimeters from the floor, so our robot vacuum can easily go under it and clean the floor. My husband and I put a lot of effort into finding this sofa. We actually bought it at a Living Design Fair after visiting several booths. The sofa is modular, made up of two three-seater sections and two small stools that can be used as footrests. The best part is that I can rearrange the modules whenever I want, depending on the season or mood. Every time I change the layout, our living room feels new again. It's been almost five years since we got it, but I'm still not tired of it.",
+       expressions:["modular sofa (모듈형 소파)","rearrange the layout (배치를 다시 바꾸다)"]},
+      {type:"비교하기",q:"Compare the furniture you had in the past with the furniture you have now.",
+       script:"When I got married, my husband and I used a white leather sofa. It was really beautiful and looked quite luxurious at the time. It had a high backrest and thick, rounded cushions. It was comfortable, but also quite bulky and heavy. It was hard to move around, and we had to clean it carefully to keep the leather from cracking or getting stained. Now, we have a completely different kind of sofa — the modular gray fabric one I mentioned earlier. It has a simple and modern design with low backrests and sharp, square seats. It feels lighter, more practical, and fits perfectly in our spacious living room. Since it's made of fabric, it's softer and gives off a cozier atmosphere than leather. And because it's modular, I can rearrange the modules whenever I want. Compared to the old leather sofa, the one we have now feels much more flexible and suits our lifestyle better.",
+       expressions:["bulky (부피가 큰)","cozy atmosphere (아늑한 분위기)"]},
+      {type:"사물 설명 (가전)",q:"Tell me about an appliance that you really like.",
+       script:"One of my favorite appliances is definitely my dryer. I've been using it for almost five years, and I can't imagine my life without it. I always use it along with my washing machine, and it has become a lifesaver for me. Before I got it, I had to hang the laundry around the house and wait for hours for everything to dry. But now, I simply throw the clothes in the dryer, and within an hour and a half, everything is perfectly dry and soft. What I love most about it is how much time it saves me. I don't have to worry about rainy days or hanging clothes all over the house. It's also super reliable — even after five years, it works just like it did when it was brand new. This dryer has really changed the way I manage my daily chores. It's such a simple appliance, but it has made a huge difference in my life.",
+       expressions:["lifesaver (없어서는 안 될 존재)","super reliable (매우 신뢰할 수 있는)"]},
+      {type:"문제 해결",q:"Tell me about a time when you had a problem with one of your home appliances.",
+       script:"My favorite home appliance is definitely my dryer. I always use it with my washing machine. But one day, something went wrong. The dryer started taking much longer than usual — sometimes more than four hours — and the clothes still weren't dry. I thought it was broken, so I contacted the customer service center. Instead of sending a technician, they told me to try something simple first: clean the lint filter with water. Honestly, I didn't believe that would solve anything, but I followed their instructions anyway. To my surprise, it worked like magic! The dryer was back to normal and worked even better than before. Since then, I've made it a rule to clean the lint filter every time I use the dryer. It's been almost five years now, and it still works like it's brand new. Through that experience, I learned that it's really important to take good care of home appliances regularly.",
+       expressions:["lint filter (먼지 필터)","take good care of (잘 관리하다)"]}
+     ],
+     roleplay:[]
+    },
+    {id:"appointment",name:"약속",emoji:"📅",
+     general:[
+      {type:"습관/경향",q:"What sort of appointments do you usually make? Where do you usually meet people?",
+       script:"I usually meet people at coffee shops whenever I have an appointment. I'm not really the type who enjoys drinking or going out to clubs. Instead, I prefer small, quiet gatherings where I can have meaningful conversations. That's why cafés have naturally become my go-to place for most of my meetings. There's something comforting about sitting in a cozy café, sipping coffee, and talking without any rush. The relaxed atmosphere helps people open up, and it just feels easier to connect. When it comes to business meetings, I usually go to franchise cafés like Starbucks. They're predictable, easy to find, and reliable for setting up appointments. But when I meet close friends, I prefer local cafés like Crème Doro. The mood there is warmer, the coffee tastes richer, and we can enjoy delicious desserts while catching up. For me, coffee shops aren't just a place to grab a drink — they're where real conversations happen.",
+       expressions:["my go-to place (내가 자주 찾는 단골 장소)","real conversations happen (진짜 대화가 이루어지는 곳)"]},
+      {type:"시간 순서",q:"When you want to meet up with someone, how do you get in touch? Tell me about the process from beginning to end.",
+       script:"When I want to meet up with someone, I usually start by sending a message on KakaoTalk, which is the most common messaging app in Korea. I normally ask when they're free and suggest a few possible dates. Once we find a day that works for both of us, I double-check my schedule and confirm the time. After that, we decide on the location. If it's a casual meeting with friends, I usually suggest a local café that's cozy and quiet. But if it's a business meeting, I prefer a franchise café like Starbucks. We sometimes share the location link through KakaoTalk so there's no confusion. A few hours before the meeting, I always send a short message just to reconfirm, like 'Are we still good for 3 p.m.?' Then I leave a bit early because I hate being late. I think having a clear plan like this makes meeting people stress-free and enjoyable.",
+       expressions:["find a day that works for both of us (서로 일정이 맞는 날을 찾다)","Are we still good for~? (약속이 유효한지 확인하는 표현)"]},
+      {type:"규칙/방법",q:"Tell me about how you usually set up a meeting with your coworkers.",
+       script:"At work, we usually use our company messenger to set up meetings. When a meeting needs to be scheduled, I first create a group chat and invite everyone who should attend. Next, we check our shared calendar to find a time that works for everyone. If there are too many options, we use the poll function in the chat to vote for the most convenient time. Once the time is decided, we talk about what kind of materials we'll need and decide on the main agenda of the meeting. After that, the meeting organizer usually sends out a confirmation email and updates the shared schedule. The organizer also books a meeting room if it's an in-person meeting, or sets up an online meeting link if it's going to be virtual. Honestly, it's not always easy — sometimes the schedule changes at the last minute — but overall, using the messenger and shared tools makes the whole process much smoother.",
+       expressions:["shared calendar (공동 일정표)","poll function (투표 기능)"]}
+     ],
+     roleplay:[
+      {type:"전화로 질문하기",q:"Pretend that a friend has invited you to a party, but you don't have any information about it. Call your friend and ask three or four questions.",
+       script:"Hi, it's me! I just got your message about the party — thanks for inviting me! I'm really excited, but I actually don't know much about it yet. First of all, when exactly is the party? Is it this weekend or sometime next week? And where are you planning to have it? At your house, or somewhere else? Also, what time should I come? I just want to make sure I don't show up too early or too late. Oh, and is there anything I should bring — like food, drinks, or maybe a small gift? I can't wait to see everyone there. Let me know the details when you have a moment!",
+       expressions:["show up too early or too late (너무 일찍/늦게 도착하다)","Let me know the details (자세히 알려줘)"]},
+      {type:"예매/약속하기",q:"You would like to meet up with a friend. Call your friend and figure out the details.",
+       script:"Hey, Bitna! It's been such a long time. I've been meaning to call you — how have you been? I was wondering if you'd like to hang out this weekend. It feels like forever since we last met, and I'd love to catch up. We usually just go to a café near your place, but I was thinking we could try something different this time. How about checking out that new brunch café downtown? I heard the desserts there are amazing. Either Saturday or Sunday works for me — which day is better for you? And should we invite anyone else, or just the two of us this time? Great! Then let's meet Saturday at 11 a.m. at the café entrance. I'll get there a little early and grab us a table.",
+       expressions:["catch up (근황을 나누다)","grab us a table (우리 자리를 미리 잡아두다)"]}
+     ]
+    },
+    {id:"festival",name:"지역 축제",emoji:"🎉",
+     general:[
+      {type:"자기소개",q:"Is there a local festival held in your neighborhood? Please tell me about it.",
+       script:"Yes, there's a small local festival that takes place right inside our apartment complex every summer, and it's one of my favorite community events. The most memorable one was the summer festival held in the apartment complex next to ours. Since it happens during the hottest season, the highlight of the festival is a mini water park that's set up for children. They install big inflatable swimming pools and water slides, so kids can enjoy playing in the water and having water-gun fights all day long. While the children play, parents sit on picnic mats nearby, chatting and drinking iced coffee as they watch their kids have fun. It feels like a perfect mix of relaxation and liveliness. In addition, there are many small booths selling local products and food — churros, sweet and sour pork, and other tasty snacks. In the evening, the festival turns into a small outdoor pub, where adults can enjoy drinks together. It gives our neighborhood a sense of togetherness and makes summer feel extra special.",
+       expressions:["inflatable swimming pool (공기 주입식 수영장)","sense of togetherness (공동체의 일체감)"]},
+      {type:"습관/경향",q:"What do you usually do when there's a local festival in your neighborhood?",
+       script:"Whenever there's a local festival in my neighborhood, my family and I always make sure to join in. Since the festival is held inside or near our apartment complex, it's really easy to get there, so it has become one of our yearly traditions. We usually go early in the afternoon to enjoy the water activities. My kids always run straight to the inflatable water park to play with their friends. They love the big slides and the water-gun fights. While they play, my husband and I usually sit nearby on a picnic mat, drinking iced coffee and chatting with other parents. Sometimes we also walk around the booths to buy snacks like churros or tteokbokki. In the evening, the atmosphere changes completely — there's music, lights, and even a small pub where adults can relax. We usually stay until it gets dark and then walk home together. It's become a family routine that we look forward to every year.",
+       expressions:["family routine (가족의 일상적인 습관)","look forward to (~을 기대하다)"]},
+      {type:"기억에 남는 경험",q:"Tell me about a memorable experience you had at a local festival.",
+       script:"One of the most memorable experiences I've had at a local festival was during last year's summer festival in our neighborhood. That year, they set up the biggest inflatable water park I had ever seen — water slides, a small pool, and even sprinklers spraying water everywhere. My kids were so excited that they jumped in as soon as we arrived. It was an extremely hot day, so watching them laugh and play in the cool water made me feel refreshed, too. Parents were sitting under umbrellas, chatting and drinking iced coffee while cheering for their kids. The sound of children laughing mixed with upbeat music created such a lively and joyful atmosphere. Later, we all bought some street food like churros and fried chicken from the local vendors. What made that day so special was how connected everyone felt. People came together, smiled, and enjoyed the same moment. I still remember the golden light of sunset shining on the water and the happy faces all around.",
+       expressions:["upbeat music (신나는 음악)","golden light of sunset (노을빛)"]}
+     ],
+     roleplay:[]
+    },
+    {id:"hotel",name:"호텔",emoji:"🏨",
+     general:[
+      {type:"장소 설명",q:"Tell me about the hotels in your country. Where are they usually located? Do they have any facilities that are unique to your country?",
+       script:"In Korea, hotels are usually located in big cities like Seoul or Busan, or near popular vacation spots such as Jeju Island and Gangwon Province. Many of them are designed for both comfort and leisure, offering spas, saunas, and even karaoke rooms, which are quite common in Korea. One of my favorite places is a resort called Seolhaewon in Yangyang, located near the beach on the east coast. When I stayed there with my family, we stayed in a two-story villa that was incredibly spacious and cozy. The first floor had a living room and a fully equipped kitchen, while the second floor had two bedrooms, each with its own bathroom. It was perfect for two families to stay together comfortably, and it really felt like a home away from home. What I loved the most was the lounge area inside the resort. It had beautiful bookshelves and warm wooden interiors made mostly of hinoki wood, which gave off a natural scent. That peaceful and elegant space made the whole experience feel even more special.",
+       expressions:["a home away from home (집처럼 편안한 곳)","relax and unwind (긴장을 풀고 여유를 즐기다)"]},
+      {type:"기억에 남는 경험",q:"Have you ever had a special experience at a hotel? Tell me about it in detail.",
+       script:"One of the most memorable hotel experiences I've ever had was when my family and I stayed at a luxury villa resort in Jeju Island for my mother's 70th birthday. Since our family has grown — with my children getting older and my brother now having his own family — we no longer stay in small hotel rooms. Instead, we book large private villas where everyone can stay together. The villa we stayed in was absolutely beautiful. It was a two-story building with spacious bedrooms on the first floor. On the second floor, there was a large living room, a kitchen, and even a private terrace with a small pool, jacuzzi, and sauna. It had everything we could possibly need. We decorated the living room for my mom's birthday, ordered food, and even made samgyetang, a traditional Korean chicken soup, to celebrate her special day. During the three days we stayed there, we spent most of our time just relaxing in the villa, eating, laughing, and taking evening walks. It was such a joyful and meaningful time for all of us.",
+       expressions:["had everything we could possibly need (필요한 모든 것이 다 갖춰져 있었다)","meaningful time for all of us (우리 모두에게 의미 있는 시간)"]},
+      {type:"기억에 남는 경험 (최근)",q:"Tell me about your most recent hotel stay. Where did you stay? What was it like?",
+       script:"My most recent hotel stay was also at the same luxury villa resort in Jeju Island, where we celebrated my mother's birthday not long ago. It was one of the best places I've ever stayed in. We checked in on a Friday afternoon, and the moment we arrived, everyone was amazed by how beautiful the villa was. The design was modern yet warm, with large windows that looked out onto the ocean. The first floor had several big bedrooms, while the second floor had a kitchen and a living room connected to a terrace. Outside the terrace, there was a small pool, jacuzzi, and sauna, which we used every evening. We ordered food from nearby restaurants, cooked simple meals like samgyetang, and enjoyed spending time together. In the evenings, we took walks around the resort to enjoy the fresh Jeju breeze. It was such a relaxing and happy trip — the perfect mix of family, good food, and peaceful nature.",
+       expressions:["make the most of our time (시간을 최대한 활용하다)","the perfect mix of family, good food, and nature (가족, 음식, 자연이 완벽히 어우러진)"]}
+     ],
+     roleplay:[
+      {type:"전화로 질문하기",q:"You are planning an upcoming stay at a hotel. Call the manager and ask three or four questions about the reservation.",
+       script:"Hello, this is Minjung. I'm planning a family trip to Jeju Island next month, and I'd like to make a reservation at your hotel. Before I book, I have a few questions. First, do you have any family suites or private villas available during the weekend of June 15th? We'll have six adults and four children, so we'll need something quite spacious. Second, I'd like to know if the rooms have kitchens or cooking facilities, since we prefer to prepare some meals on our own. Also, do you offer any breakfast or dinner packages for guests staying in villas? And one last thing — is there a pool or kids' play area inside the resort that's open to guests? Okay, that sounds great. If the family villa is available and breakfast is included, I'd like to go ahead and make a reservation for three nights starting on June 15th. Please put it under my name. Thank you so much!",
+       expressions:["go ahead and make a reservation (바로 예약을 진행하다)","cooking facilities (취사 시설)"]}
+     ]
+    }
+  ]
+};
+</script>
+
+<script>
+// ── state ──────────────────────────────────────────────
+let currentSession = null;
+let isStudyMode = false;
+let studySessionQuestions = null; // remember questions from study for follow-up practice
+let timerInterval = null;
+let recordInterval = null;
+let mediaRecorder = null;
+let recordedChunks = [];
+let recordStart = 0;
+let selectedTopic = null;
+let micGranted = false; // track mic permission
+
+// ── storage ────────────────────────────────────────────
+function getHistory(){try{return JSON.parse(localStorage.getItem('opic_history')||'[]')}catch{return[]}}
+function saveHistory(h){localStorage.setItem('opic_history',JSON.stringify(h))}
+
+// ── navigation ─────────────────────────────────────────
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  if(name==='home') renderHome();
+  if(name==='history') renderHistory();
+  if(name==='browse') renderBrowse();
+  window.scrollTo(0,0);
+}
+
+// ── dropdown ───────────────────────────────────────────
+function toggleDropdown(){
+  const dd=document.getElementById('dropdown');
+  dd.classList.toggle('open');
+}
+function closeDropdown(){document.getElementById('dropdown').classList.remove('open')}
+document.addEventListener('click',e=>{
+  const btn=document.getElementById('more-btn');
+  const dd=document.getElementById('dropdown');
+  if(btn&&dd&&!btn.contains(e.target)&&!dd.contains(e.target)) dd.classList.remove('open');
+});
+
+// ── reset modal ────────────────────────────────────────
+function confirmReset(){closeDropdown();document.getElementById('reset-modal').classList.add('open')}
+function closeResetModal(){document.getElementById('reset-modal').classList.remove('open')}
+function closeModal(e){if(e.target===document.getElementById('reset-modal')) closeResetModal()}
+function doReset(){
+  localStorage.removeItem('opic_history');
+  closeResetModal();
+  renderHome();
+  showToast('🗑️ 히스토리가 초기화됐어요');
+}
+
+// ── home ───────────────────────────────────────────────
+function renderHome(){
+  const hist=getHistory();
+  const allTopics=[...OPIC_DATA.general,...OPIC_DATA.sudden];
+  const practicedIds=new Set(hist.map(h=>h.topicId));
+  const total=hist.length;
+  const topicCount=practicedIds.size;
+  const pct=allTopics.length>0?Math.round(practicedIds.size/allTopics.length*100):0;
+  document.getElementById('home-total').textContent=total;
+  document.getElementById('home-topics').textContent=topicCount;
+  document.getElementById('home-pct').textContent=pct+'%';
+  document.getElementById('stats-prog-label').textContent=`${topicCount} / ${allTopics.length} 주제`;
+  document.getElementById('stats-prog-pct').textContent=pct+'%';
+  document.getElementById('stats-bar').style.width=pct+'%';
+  const recentEl=document.getElementById('home-recent-list');
+  const recent=hist.slice(0,3);
+  if(recent.length===0){
+    recentEl.innerHTML='<div class="hhc-empty">아직 연습 기록이 없어요 😊</div>';
+  } else {
+    recentEl.innerHTML=recent.map(h=>{
+      const d=new Date(h.date);
+      const ds=`${d.getMonth()+1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+      const isRP=h.type==='roleplay', isStudy=h.type==='study';
+      const badge=isStudy?'study':isRP?'rp':'';
+      const label=isStudy?'스크립트':isRP?'롤플레이':'일반';
+      return `<div class="hhc-item">
+        <div class="hhc-emoji">${h.topicEmoji||'📝'}</div>
+        <div class="hhc-info"><div class="hhc-topic">${h.topicName}</div><div class="hhc-meta">${ds}</div></div>
+        <div class="hhc-badge ${badge}">${label}</div>
+      </div>`;
+    }).join('');
+  }
+}
+
+// ── random practice ────────────────────────────────────
+function startRandom(){
+  const allTopics=[...OPIC_DATA.general,...OPIC_DATA.sudden];
+  const hist=getHistory();
+  const practicedIds=new Set(hist.map(h=>h.topicId));
+  const unvisited=allTopics.filter(t=>!practicedIds.has(t.id));
+  const pool=unvisited.length>0?unvisited:allTopics;
+  const topic=pool[Math.floor(Math.random()*pool.length)];
+  const type=topic.general.length>0?'general':'roleplay';
+  isStudyMode=false;
+  beginSession(topic,type);
+}
+
+// ── study mode ─────────────────────────────────────────
+function startStudy(){
+  const allTopics=[...OPIC_DATA.general,...OPIC_DATA.sudden];
+  const hist=getHistory();
+  const studiedIds=new Set(hist.filter(h=>h.type==='study').map(h=>h.topicId));
+  const unstudied=allTopics.filter(t=>!studiedIds.has(t.id));
+  const pool=unstudied.length>0?unstudied:allTopics;
+  const topic=pool[Math.floor(Math.random()*pool.length)];
+  const type=topic.general.length>0?'general':'roleplay';
+  isStudyMode=true;
+  beginStudySession(topic,type);
+}
+
+function beginStudySession(topic,type){
+  const qs=topic[type];
+  const shuffled=[...qs].sort(()=>Math.random()-.5);
+  const picked=shuffled.slice(0,Math.min(3,shuffled.length));
+  studySessionQuestions={topic,type,questions:picked};
+  currentSession={topic,type:'study',questions:picked,qIndex:0,startTime:new Date().toISOString()};
+  const hist=getHistory();
+  const now=new Date();
+  hist.unshift({sessionId:currentSession.startTime,topicId:topic.id,topicName:topic.name,topicEmoji:topic.emoji,type:'study',questionsAnswered:0,date:now.toISOString()});
+  saveHistory(hist);
+  showStudyScript(0);
+}
+
+function showStudyScript(idx){
+  const q=currentSession.questions[idx];
+  const total=currentSession.questions.length;
+  const hist=getHistory();
+  const entry=hist.find(h=>h.sessionId===currentSession.startTime);
+  if(entry) entry.questionsAnswered=idx+1;
+  saveHistory(hist);
+  document.getElementById('script-q-badge').textContent=`${idx+1} / ${total}`;
+  document.getElementById('script-back-btn').onclick=idx===0?()=>showScreen('home'):()=>showStudyScript(idx-1);
+  document.getElementById('script-body').innerHTML=`
+    <div class="study-mode-banner">📖 스크립트 학습 모드 — ${currentSession.topic.emoji} ${currentSession.topic.name}</div>
+    <div class="script-q-card fade-up"><div class="script-q-label">Question ${idx+1}</div><div class="script-q-text">${q.q}</div></div>
+    <div class="script-answer-card fade-up" style="animation-delay:.06s"><div class="script-answer-label">모범 답안</div><div class="script-text">${q.script}</div></div>
+    ${q.expressions&&q.expressions.length>0?`<div class="expr-card fade-up" style="animation-delay:.12s"><div class="expr-label">주요 표현</div>${q.expressions.map(e=>`<div class="expr-item">💡 ${e}</div>`).join('')}</div>`:''}
+  `;
+  const isLast=idx>=total-1;
+  if(isLast){
+    // Last study question: offer "practice now" or go home
+    document.getElementById('script-nav').innerHTML=`
+      <button class="snav-btn" onclick="showScreen('home')">홈으로</button>
+      <button class="snav-btn orange" onclick="startPracticeFromStudy()">🎙️ 바로 연습하기</button>
+    `;
+  } else {
+    document.getElementById('script-nav').innerHTML=`
+      <button class="snav-btn" onclick="showScreen('home')">그만하기</button>
+      <button class="snav-btn primary" onclick="showStudyScript(${idx+1})">다음 →</button>
+    `;
+  }
+  showScreen('script');
+}
+
+// ── study → practice transition ────────────────────────
+function startPracticeFromStudy(){
+  if(!studySessionQuestions){showScreen('home');return;}
+  const {topic,type,questions}=studySessionQuestions;
+  isStudyMode=false;
+  // Reuse the exact same questions from the study session
+  currentSession={
+    topic,type,
+    questions, // same 3 questions they just studied
+    qIndex:0,
+    startTime:new Date().toISOString(),
+    fromStudy:true
+  };
+  showPracticeQ(0);
+  showScreen('practice');
+}
+
+// ── browse ─────────────────────────────────────────────
+function renderBrowse(){
+  const hist=getHistory();
+  const done=new Set(hist.map(h=>h.topicId));
+  ['general','sudden'].forEach(cat=>{
+    const el=document.getElementById(`browse-${cat}-list`);
+    el.innerHTML=OPIC_DATA[cat].map(t=>{
+      const qCount=t.general.length+t.roleplay.length;
+      return `<div class="topic-select-item ${done.has(t.id)?'done':''}" onclick="openTypeSelect('${t.id}','${cat}')">
+        <div class="tsi-emoji">${t.emoji}</div>
+        <div class="tsi-info"><div class="tsi-name">${t.name}</div><div class="tsi-count">질문 ${qCount}개</div></div>
+        <div class="tsi-right">${done.has(t.id)?'<div class="tsi-done">완료</div>':''}<div class="tsi-arrow">›</div></div>
+      </div>`;
+    }).join('');
+  });
+}
+
+function openTypeSelect(id,cat){
+  const topic=OPIC_DATA[cat].find(t=>t.id===id);
+  selectedTopic={topic,cat};
+  isStudyMode=false;
+  document.getElementById('type-hero').innerHTML=`
+    <div class="topic-hero-emoji">${topic.emoji}</div>
+    <div class="topic-hero-name">${topic.name}</div>
+    <div class="topic-hero-label">${cat==='general'?'일반 주제':'돌발 주제'} · 질문 ${topic.general.length+topic.roleplay.length}개</div>
+  `;
+  let html='';
+  if(topic.general.length>0){
+    html+=`<div class="type-card" onclick="beginSession(selectedTopic.topic,'general')">
+      <div class="type-card-header"><div class="type-icon general">💬</div><div><div class="type-title">일반 유형</div><div class="type-sub">${topic.general.length}개 질문</div></div></div>
+      <div class="type-chips">${topic.general.map(q=>`<span class="chip">${q.type}</span>`).join('')}</div>
+    </div>`;
+  }
+  if(topic.roleplay.length>0){
+    html+=`<div class="type-card" onclick="beginSession(selectedTopic.topic,'roleplay')">
+      <div class="type-card-header"><div class="type-icon roleplay">🎭</div><div><div class="type-title">롤플레이 유형</div><div class="type-sub">${topic.roleplay.length}개 질문</div></div></div>
+      <div class="type-chips">${topic.roleplay.map(q=>`<span class="chip">${q.type}</span>`).join('')}</div>
+    </div>`;
+  }
+  document.getElementById('type-options').innerHTML=html;
+  showScreen('type');
+}
+
+// ── practice session ───────────────────────────────────
+function beginSession(topic,type){
+  const qs=topic[type];
+  const shuffled=[...qs].sort(()=>Math.random()-.5);
+  const picked=shuffled.slice(0,Math.min(3,shuffled.length));
+  currentSession={topic,type,questions:picked,qIndex:0,startTime:new Date().toISOString()};
+  showPracticeQ(0);
+  showScreen('practice');
+}
+
+function showPracticeQ(idx){
+  const q=currentSession.questions[idx];
+  const total=currentSession.questions.length;
+  document.getElementById('prac-topic-badge').textContent=currentSession.topic.emoji+' '+currentSession.topic.name;
+  document.getElementById('prac-q-badge').textContent=`${idx+1} / ${total}`;
+  document.getElementById('prep-q-text').textContent=q.q;
+  document.getElementById('rec-q-text').textContent=q.q;
+  document.getElementById('prep-phase').style.display='flex';
+  document.getElementById('record-phase').classList.remove('active');
+  document.getElementById('record-pulse').classList.remove('active');
+  document.getElementById('mic-warn').classList.remove('show');
+  startPrepTimer();
+}
+
+// ── timer ──────────────────────────────────────────────
+function startPrepTimer(){
+  clearInterval(timerInterval);
+  let sec=60;
+  const numEl=document.getElementById('timer-num');
+  const progEl=document.getElementById('timer-prog');
+  const circ=270;
+  numEl.textContent=sec;
+  progEl.style.strokeDashoffset='0';
+  progEl.style.stroke='var(--accent)';
+  timerInterval=setInterval(()=>{
+    sec--;
+    numEl.textContent=sec;
+    progEl.style.strokeDashoffset=circ*(1-sec/60);
+    if(sec<=10) progEl.style.stroke='var(--danger)';
+    else if(sec<=20) progEl.style.stroke='var(--warning)';
+    else progEl.style.stroke='var(--accent)';
+    if(sec<=0){clearInterval(timerInterval);startRecording();}
+  },1000);
+}
+
+// ── RECORDING ──────────────────────────────────────────
+// Key fix: request mic permission FIRST, then show record UI.
+// On Android WebView / Samsung Internet, getUserMedia triggers
+// the native OS permission dialog. We must call it before any
+// UI transition so it doesn't get blocked as a background popup.
+
+async function startRecording(){
+  clearInterval(timerInterval);
+
+  // Step 1: Request mic access (shows OS dialog if not yet granted)
+  let stream = null;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({audio:true,video:false});
+    micGranted = true;
+    document.getElementById('mic-warn').classList.remove('show');
+  } catch(err){
+    console.warn('Mic error:', err.name, err.message);
+    // Show inline guidance instead of just a toast
+    document.getElementById('mic-warn').classList.add('show');
+    showToast('⚠️ 마이크 권한 필요 — 위 안내를 확인해주세요');
+    // Still transition to record UI so user can try again
+    document.getElementById('prep-phase').style.display='none';
+    document.getElementById('record-phase').classList.add('active');
+    // No recording will happen, doSave() handles empty chunks
+  }
+
+  // Step 2: Transition UI
+  document.getElementById('prep-phase').style.display='none';
+  document.getElementById('record-phase').classList.add('active');
+  document.getElementById('record-pulse').classList.add('active');
+
+  recordedChunks=[];
+  recordStart=Date.now();
+  clearInterval(recordInterval);
+  const timeEl=document.getElementById('rec-time');
+  recordInterval=setInterval(()=>{
+    const e=Math.floor((Date.now()-recordStart)/1000);
+    timeEl.textContent=`${Math.floor(e/60)}:${pad(e%60)}`;
+  },1000);
+
+  // Step 3: Start MediaRecorder if we have a stream
+  if(stream){
+    const mimeType=getSupportedMime();
+    try{
+      const opts=mimeType?{mimeType}:{};
+      mediaRecorder=new MediaRecorder(stream,opts);
+    } catch(e){
+      // Fallback: no mimeType constraint
+      mediaRecorder=new MediaRecorder(stream);
+    }
+    mediaRecorder.ondataavailable=ev=>{
+      if(ev.data&&ev.data.size>0) recordedChunks.push(ev.data);
+    };
+    mediaRecorder.onerror=ev=>console.error('MediaRecorder error',ev);
+    // Collect data every 500ms for reliability on mobile
+    mediaRecorder.start(500);
+    console.log('Recording started. mimeType:', mediaRecorder.mimeType);
+  } else {
+    mediaRecorder=null;
+  }
+}
+
+function getSupportedMime(){
+  if(typeof MediaRecorder==='undefined') return '';
+  const types=[
+    'audio/webm;codecs=opus',
+    'audio/webm',
+    'audio/ogg;codecs=opus',
+    'audio/ogg',
+    'audio/mp4;codecs=aac',
+    'audio/mp4',
+    'audio/aac',
+    'audio/mpeg',
+  ];
+  for(const t of types){
+    try{if(MediaRecorder.isTypeSupported(t)) return t;}
+    catch(e){}
+  }
+  return '';
+}
+
+function getExt(m){
+  if(!m) return 'webm';
+  if(m.includes('ogg')) return 'ogg';
+  if(m.includes('mpeg')||m.includes('mp3')) return 'mp3';
+  if(m.includes('mp4')||m.includes('aac')) return 'm4a';
+  return 'webm';
+}
+
+function stopRecording(){
+  clearInterval(recordInterval);
+  document.getElementById('record-pulse').classList.remove('active');
+
+  if(mediaRecorder&&(mediaRecorder.state==='recording'||mediaRecorder.state==='paused')){
+    mediaRecorder.onstop=()=>{
+      // Stop all tracks
+      try{mediaRecorder.stream.getTracks().forEach(t=>t.stop());}catch(e){}
+      doSave();
+    };
+    mediaRecorder.stop();
+  } else {
+    doSave();
+  }
+}
+
+function doSave(){
+  const now=new Date();
+  const ds=`${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}`;
+  const ts=`${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+  const slug=currentSession.topic.name.replace(/[\s\/\\]/g,'_');
+  const qNum=currentSession.qIndex+1;
+
+  if(recordedChunks.length>0){
+    const mimeType=(mediaRecorder&&mediaRecorder.mimeType)||'audio/webm';
+    const ext=getExt(mimeType);
+    const filename=`${ds}_${ts}_${slug}_Q${qNum}.${ext}`;
+    const blob=new Blob(recordedChunks,{type:mimeType});
+    console.log('Saving blob:',blob.size,'bytes, type:',blob.type,'filename:',filename);
+    try{
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');
+      a.href=url; a.download=filename; a.style.display='none';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},3000);
+      showToast('💾 저장됨: '+filename);
+    } catch(e){
+      console.error('Download error:',e);
+      showToast('⚠️ 파일 저장 실패 — 브라우저 제한');
+    }
+  } else {
+    showToast('⚠️ 녹음 데이터 없음 — 마이크 권한을 확인해주세요');
+  }
+
+  // Save history
+  const hist=getHistory();
+  const existing=hist.find(h=>h.sessionId===currentSession.startTime);
+  if(existing){
+    existing.questionsAnswered=(existing.questionsAnswered||0)+1;
+  } else {
+    hist.unshift({
+      sessionId:currentSession.startTime,
+      topicId:currentSession.topic.id,
+      topicName:currentSession.topic.name,
+      topicEmoji:currentSession.topic.emoji,
+      type:currentSession.type,
+      questionsAnswered:1,
+      date:now.toISOString()
+    });
+  }
+  saveHistory(hist);
+  showScriptScreen(currentSession.qIndex);
+}
+
+// ── script screen (post-recording) ─────────────────────
+function showScriptScreen(idx){
+  const q=currentSession.questions[idx];
+  const total=currentSession.questions.length;
+  document.getElementById('script-q-badge').textContent=`${idx+1} / ${total}`;
+  document.getElementById('script-back-btn').onclick=()=>backFromScript();
+  document.getElementById('script-body').innerHTML=`
+    <div class="script-q-card fade-up"><div class="script-q-label">Question ${idx+1}</div><div class="script-q-text">${q.q}</div></div>
+    <div class="script-answer-card fade-up" style="animation-delay:.06s"><div class="script-answer-label">모범 답안</div><div class="script-text">${q.script}</div></div>
+    ${q.expressions&&q.expressions.length>0?`<div class="expr-card fade-up" style="animation-delay:.12s"><div class="expr-label">주요 표현</div>${q.expressions.map(e=>`<div class="expr-item">💡 ${e}</div>`).join('')}</div>`:''}
+  `;
+  const isLast=idx>=total-1;
+  document.getElementById('script-nav').innerHTML=isLast
+    ?`<button class="snav-btn" onclick="showScreen('home')">홈으로</button><button class="snav-btn success" onclick="finishSession()">완료 ✓</button>`
+    :`<button class="snav-btn" onclick="showScreen('home')">그만하기</button><button class="snav-btn primary" onclick="nextQuestion()">다음 질문 →</button>`;
+  showScreen('script');
+}
+
+function backFromScript(){
+  if(currentSession&&currentSession.type==='study'){
+    showStudyScript(currentSession.qIndex);
+  } else {
+    showPracticeQ(currentSession.qIndex);
+    showScreen('practice');
+  }
+}
+function nextQuestion(){
+  currentSession.qIndex++;
+  showPracticeQ(currentSession.qIndex);
+  showScreen('practice');
+}
+function finishSession(){
+  showToast('🎉 연습 완료! 수고했어요');
+  setTimeout(()=>showScreen('home'),600);
+}
+function exitPractice(){
+  clearInterval(timerInterval); clearInterval(recordInterval);
+  if(mediaRecorder&&(mediaRecorder.state==='recording')){
+    try{mediaRecorder.stop();mediaRecorder.stream.getTracks().forEach(t=>t.stop());}catch(e){}
+  }
+  showScreen('home');
+}
+
+// ── history ────────────────────────────────────────────
+function renderHistory(){
+  const hist=getHistory();
+  const allTopics=[...OPIC_DATA.general,...OPIC_DATA.sudden];
+  const practicedIds=new Set(hist.map(h=>h.topicId));
+  const pct=Math.round(practicedIds.size/allTopics.length*100)||0;
+  document.getElementById('history-body').innerHTML=`
+    <div class="stats-2col">
+      <div class="stat-card"><div class="stat-num">${hist.length}</div><div class="stat-unit">총 연습 횟수</div></div>
+      <div class="stat-card"><div class="stat-num">${practicedIds.size}</div><div class="stat-unit">연습한 주제</div></div>
+    </div>
+    <div class="progress-card">
+      <div class="progress-header"><div class="progress-title">전체 진행률</div><div class="progress-pct">${pct}%</div></div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
+      <div class="progress-sub">${practicedIds.size} / ${allTopics.length} 주제 완료</div>
+    </div>
+    <div class="progress-card">
+      <div class="progress-title" style="margin-bottom:10px">주제별 진행률</div>
+      ${allTopics.map(t=>{
+        const cnt=hist.filter(h=>h.topicId===t.id).length;
+        const bp=cnt>0?Math.min(100,cnt*20):0;
+        return `<div class="topic-prog-item">
+          <div class="tpi-emoji">${t.emoji}</div>
+          <div class="tpi-info"><div class="tpi-name">${t.name}</div><div class="tpi-bar-bg"><div class="tpi-bar-fill" style="width:${bp}%"></div></div></div>
+          <div class="tpi-count">${cnt}회</div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);margin-bottom:8px">연습 기록</div>
+    ${hist.length===0
+      ?`<div class="empty-state"><div class="empty-icon">📝</div><div class="empty-text">아직 연습 기록이 없어요.<br>첫 번째 연습을 시작해보세요!</div></div>`
+      :`<div class="history-list">${hist.map(h=>{
+          const d=new Date(h.date);
+          const ds=`${d.getMonth()+1}월 ${d.getDate()}일 ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+          const isRP=h.type==='roleplay', isStudy=h.type==='study';
+          const badge=isStudy?'study':isRP?'rp':'';
+          const label=isStudy?'스크립트':isRP?'롤플레이':'일반';
+          return `<div class="history-item">
+            <div class="hi-emoji">${h.topicEmoji||'📝'}</div>
+            <div class="hi-info"><div class="hi-topic">${h.topicName}</div><div class="hi-meta">${ds} · Q${h.questionsAnswered||1}</div></div>
+            <div class="hi-type ${badge}">${label}</div>
+          </div>`;
+        }).join('')}</div>`
+    }
+  `;
+}
+
+// ── utils ──────────────────────────────────────────────
+function pad(n){return String(n).padStart(2,'0')}
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer=setTimeout(()=>t.classList.remove('show'),3200);
+}
+
+// ── init ───────────────────────────────────────────────
+renderHome();
+</script>
+</body>
+</html>
