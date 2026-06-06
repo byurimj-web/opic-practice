@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>OPIc Practice</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lamejs/1.2.1/lame.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 :root{
@@ -1204,73 +1205,118 @@ async function startRecording(){
 
 function getSupportedMime(){
   if(typeof MediaRecorder==='undefined') return '';
-  // 갤럭시 크롬 실제 녹음 지원 포맷: webm+opus가 가장 안정적
-  // audio/mp4는 isTypeSupported=true여도 실제 인코딩 불가 → 빈 파일 생성됨
-  const types=[
-    'audio/webm;codecs=opus',
-    'audio/webm',
-    'audio/ogg;codecs=opus',
-    'audio/ogg',
-  ];
-  for(const t of types){
-    try{if(MediaRecorder.isTypeSupported(t)) return t;}
-    catch(e){}
-  }
+  const types=['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/ogg'];
+  for(const t of types){try{if(MediaRecorder.isTypeSupported(t)) return t;}catch(e){}}
   return '';
-}
-
-function getExt(m){
-  // 내부 포맷과 무관하게 항상 .m4a 확장자로 저장
-  // 갤럭시 파일 관리자·음성녹음 앱이 m4a 아이콘으로 표시하고 재생 가능
-  return 'm4a';
 }
 
 function stopRecording(){
   clearInterval(recordInterval);
   document.getElementById('record-pulse').classList.remove('active');
-
   if(mediaRecorder&&(mediaRecorder.state==='recording'||mediaRecorder.state==='paused')){
     mediaRecorder.onstop=()=>{
-      // Stop all tracks
       try{mediaRecorder.stream.getTracks().forEach(t=>t.stop());}catch(e){}
-      doSave();
+      convertAndSave();
     };
     mediaRecorder.stop();
   } else {
-    doSave();
+    convertAndSave();
   }
 }
 
-function doSave(){
+// webm → MP3 변환 후 저장 (lamejs 사용)
+async function convertAndSave(){
   const now=new Date();
   const ds=`${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}`;
   const ts=`${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
   const slug=currentSession.topic.name.replace(/[\s\/\\]/g,'_');
   const qNum=currentSession.qIndex+1;
 
-  if(recordedChunks.length>0){
-    const mimeType=(mediaRecorder&&mediaRecorder.mimeType)||'audio/webm';
-    const ext=getExt(mimeType);
-    const filename=`${ds}_${ts}_${slug}_Q${qNum}.${ext}`;
-    const blob=new Blob(recordedChunks,{type:mimeType});
-    console.log('Saving blob:',blob.size,'bytes, type:',blob.type,'filename:',filename);
-    try{
-      const url=URL.createObjectURL(blob);
-      const a=document.createElement('a');
-      a.href=url; a.download=filename; a.style.display='none';
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},3000);
-      showToast('💾 저장됨: '+filename);
-    } catch(e){
-      console.error('Download error:',e);
-      showToast('⚠️ 파일 저장 실패 — 브라우저 제한');
-    }
-  } else {
+  if(recordedChunks.length===0){
     showToast('⚠️ 녹음 데이터 없음 — 마이크 권한을 확인해주세요');
+    saveHistoryEntry(now);
+    showScriptScreen(currentSession.qIndex);
+    return;
   }
 
-  // Save history
+  showToast('⏳ MP3 변환 중...');
+
+  try{
+    const webmBlob=new Blob(recordedChunks,{type:mediaRecorder?.mimeType||'audio/webm'});
+    const arrayBuffer=await webmBlob.arrayBuffer();
+
+    // AudioContext로 webm 디코딩
+    const audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    const audioBuffer=await audioCtx.decodeAudioData(arrayBuffer);
+    await audioCtx.close();
+
+    // lamejs로 MP3 인코딩
+    const mp3Blob=await encodeToMp3(audioBuffer);
+    const filename=`${ds}_${ts}_${slug}_Q${qNum}.mp3`;
+
+    triggerDownload(mp3Blob, filename);
+    showToast('💾 저장됨: '+filename);
+  }catch(err){
+    console.warn('MP3 변환 실패, webm으로 저장:', err);
+    // 변환 실패 시 webm 그대로 저장 (fallback)
+    const webmBlob=new Blob(recordedChunks,{type:'audio/webm'});
+    const filename=`${ds}_${ts}_${slug}_Q${qNum}.webm`;
+    triggerDownload(webmBlob, filename);
+    showToast('💾 저장됨 (webm): '+filename);
+  }
+
+  saveHistoryEntry(now);
+  showScriptScreen(currentSession.qIndex);
+}
+
+function encodeToMp3(audioBuffer){
+  return new Promise((resolve,reject)=>{
+    try{
+      const sampleRate=audioBuffer.sampleRate;
+      const numChannels=Math.min(audioBuffer.numberOfChannels,2);
+      const mp3enc=new lamejs.Mp3Encoder(numChannels,sampleRate,128);
+      const blockSize=1152;
+      const mp3Data=[];
+
+      // 채널 데이터 Int16 변환
+      const toInt16=(f32)=>{
+        const i16=new Int16Array(f32.length);
+        for(let i=0;i<f32.length;i++){
+          const s=Math.max(-1,Math.min(1,f32[i]));
+          i16[i]=s<0?s*0x8000:s*0x7FFF;
+        }
+        return i16;
+      };
+
+      const left=toInt16(audioBuffer.getChannelData(0));
+      const right=numChannels>1?toInt16(audioBuffer.getChannelData(1)):left;
+
+      for(let i=0;i<left.length;i+=blockSize){
+        const lChunk=left.subarray(i,i+blockSize);
+        const rChunk=right.subarray(i,i+blockSize);
+        const encoded=numChannels===2
+          ?mp3enc.encodeBuffer(lChunk,rChunk)
+          :mp3enc.encodeBuffer(lChunk);
+        if(encoded.length>0) mp3Data.push(new Uint8Array(encoded));
+      }
+      const flushed=mp3enc.flush();
+      if(flushed.length>0) mp3Data.push(new Uint8Array(flushed));
+
+      resolve(new Blob(mp3Data,{type:'audio/mpeg'}));
+    }catch(e){reject(e);}
+  });
+}
+
+function triggerDownload(blob, filename){
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=filename; a.style.display='none';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},3000);
+}
+
+function saveHistoryEntry(now){
   const hist=getHistory();
   const existing=hist.find(h=>h.sessionId===currentSession.startTime);
   if(existing){
@@ -1287,7 +1333,6 @@ function doSave(){
     });
   }
   saveHistory(hist);
-  showScriptScreen(currentSession.qIndex);
 }
 
 // ── script screen (post-recording) ─────────────────────
