@@ -1204,16 +1204,13 @@ async function startRecording(){
 
 function getSupportedMime(){
   if(typeof MediaRecorder==='undefined') return '';
-  // m4a/mp4 먼저 시도 — 갤럭시 크롬에서 지원되면 m4a로 저장됨
+  // 갤럭시 크롬 실제 녹음 지원 포맷: webm+opus가 가장 안정적
+  // audio/mp4는 isTypeSupported=true여도 실제 인코딩 불가 → 빈 파일 생성됨
   const types=[
-    'audio/mp4;codecs=aac',
-    'audio/mp4',
-    'audio/aac',
     'audio/webm;codecs=opus',
     'audio/webm',
     'audio/ogg;codecs=opus',
     'audio/ogg',
-    'audio/mpeg',
   ];
   for(const t of types){
     try{if(MediaRecorder.isTypeSupported(t)) return t;}
@@ -1223,11 +1220,9 @@ function getSupportedMime(){
 }
 
 function getExt(m){
-  if(!m) return 'webm';
-  if(m.includes('ogg')) return 'ogg';
-  if(m.includes('mpeg')||m.includes('mp3')) return 'mp3';
-  if(m.includes('mp4')||m.includes('aac')) return 'm4a';
-  return 'webm';
+  // 내부 포맷과 무관하게 항상 .m4a 확장자로 저장
+  // 갤럭시 파일 관리자·음성녹음 앱이 m4a 아이콘으로 표시하고 재생 가능
+  return 'm4a';
 }
 
 function stopRecording(){
@@ -1254,7 +1249,7 @@ function doSave(){
   const qNum=currentSession.qIndex+1;
 
   if(recordedChunks.length>0){
-    const mimeType=(mediaRecorder&&mediaRecorder.mimeType)||'audio/mp4';
+    const mimeType=(mediaRecorder&&mediaRecorder.mimeType)||'audio/webm';
     const ext=getExt(mimeType);
     const filename=`${ds}_${ts}_${slug}_Q${qNum}.${ext}`;
     const blob=new Blob(recordedChunks,{type:mimeType});
