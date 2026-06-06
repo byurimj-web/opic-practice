@@ -1204,14 +1204,15 @@ async function startRecording(){
 
 function getSupportedMime(){
   if(typeof MediaRecorder==='undefined') return '';
+  // m4a/mp4 먼저 시도 — 갤럭시 크롬에서 지원되면 m4a로 저장됨
   const types=[
+    'audio/mp4;codecs=aac',
+    'audio/mp4',
+    'audio/aac',
     'audio/webm;codecs=opus',
     'audio/webm',
     'audio/ogg;codecs=opus',
     'audio/ogg',
-    'audio/mp4;codecs=aac',
-    'audio/mp4',
-    'audio/aac',
     'audio/mpeg',
   ];
   for(const t of types){
@@ -1253,7 +1254,7 @@ function doSave(){
   const qNum=currentSession.qIndex+1;
 
   if(recordedChunks.length>0){
-    const mimeType=(mediaRecorder&&mediaRecorder.mimeType)||'audio/webm';
+    const mimeType=(mediaRecorder&&mediaRecorder.mimeType)||'audio/mp4';
     const ext=getExt(mimeType);
     const filename=`${ds}_${ts}_${slug}_Q${qNum}.${ext}`;
     const blob=new Blob(recordedChunks,{type:mimeType});
